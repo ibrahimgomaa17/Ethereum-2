@@ -1,6 +1,0 @@
-=============== Feb 13, 2025 (+03) ===============
-21:02:48.091537 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-21:02:48.105181 db@open opening
-21:02:48.105566 version@stat F·[] S·0B[] Sc·[]
-21:02:48.110274 db@janitor F·2 G·0
-21:02:48.110301 db@open done T·5.097375ms

@@ -7,157 +7,456 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 🔹 Connect to Private Blockchain
-const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+// ✅ Connect to Geth Blockchain
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL, {
+    chainId: 1337,
+    name: "geth"
+});
 
-// 🔹 Smart Contract ABI
-const contractABI = [
-    "function registerProperty(string memory _name, string memory _propertyType, string memory _serialNumber, string memory _location) public",
-    "function getProperty(string memory _uniqueId) public view returns (string memory, string memory, string memory, string memory, string memory, address)",
-    "function getPropertiesByOwner(address _owner) public view returns (string[] memory)",
-    "function getPropertyBySerial(string memory _serialNumber) public view returns (string memory, string memory, string memory, string memory, string memory, address)",
-    "function getPropertyByName(string memory _name) public view returns (string memory, string memory, string memory, string memory, string memory, address)",
-    "function getAllProperties() public view returns (string[] memory)",
-    "function transferProperty(string memory _uniqueId, address _newOwner) public"
+// ✅ Load UserRegistry Smart Contract
+
+// ✅ Load UserRegistry Smart Contract
+const userRegistryABI = [
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "userId",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "walletAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "isAdmin",
+                "type": "bool"
+            }
+        ],
+        "name": "UserRegistered",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_userId",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "_walletAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "_isAdmin",
+                "type": "bool"
+            }
+        ],
+        "name": "registerUser",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_admin",
+                "type": "address"
+            }
+        ],
+        "name": "removeAdmin",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_addr",
+                "type": "address"
+            }
+        ],
+        "name": "isAdmin",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_walletAddress",
+                "type": "address"
+            }
+        ],
+        "name": "getUserByAddress",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_userId",
+                "type": "string"
+            }
+        ],
+        "name": "getAddressByUserId",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
 ];
 
-const contract = new ethers.Contract(process.env.CONTRACT_ADDRESS, contractABI, wallet);
+const userRegistry = new ethers.Contract(process.env.USER_REGISTRY_ADDRESS, userRegistryABI, provider);
 
-// 🔹 API Routes
+// ✅ Load PropertyRegistry Smart Contract
+const propertyRegistryABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_name",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_propertyType",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_serialNumber",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_location",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "_owner",
+                "type": "address"
+            }
+        ],
+        "name": "registerProperty",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_uniqueId",
+                "type": "string"
+            }
+        ],
+        "name": "getProperty",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_uniqueId",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "_newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferProperty",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+];
 
-// ✅ Register a Property
+const propertyRegistry = new ethers.Contract(process.env.PROPERTY_REGISTRY_ADDRESS, propertyRegistryABI, provider);
+
+// 🚀 **Admin APIs** 🚀
+
+// ✅ Make the first PoA account an admin (Only on deployment)
+app.post("/make-poa-admin", async (req, res) => {
+    try {
+        const { privateKey } = req.body;
+        const wallet = new ethers.Wallet(privateKey, provider);
+        const contractWithSigner = userRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.registerUser("admin", wallet.address, true);
+        await tx.wait();
+
+        res.json({ message: "✅ PoA Admin registered successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ Create a new admin
+app.post("/add-admin", async (req, res) => {
+    try {
+        const { adminPrivateKey, newAdminAddress } = req.body;
+
+        const wallet = new ethers.Wallet(adminPrivateKey, provider);
+        const contractWithSigner = userRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.registerUser("admin-" + newAdminAddress.slice(-6), newAdminAddress, true);
+        await tx.wait();
+
+        res.json({ message: "✅ New admin added successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ Remove an admin (Only PoA Admin)
+app.post("/remove-admin", async (req, res) => {
+    try {
+        const { poaAdminPrivateKey, adminToRemove } = req.body;
+
+        const wallet = new ethers.Wallet(poaAdminPrivateKey, provider);
+        const contractWithSigner = userRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.removeAdmin(adminToRemove);
+        await tx.wait();
+
+        res.json({ message: "✅ Admin removed successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ Register a new user (Admin Only)
+app.post("/register-user", async (req, res) => {
+    try {
+        const { adminPrivateKey, userId, walletAddress } = req.body;
+
+        const wallet = new ethers.Wallet(adminPrivateKey, provider);
+        const contractWithSigner = userRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.registerUser(userId, walletAddress, false);
+        await tx.wait();
+
+        res.json({ message: "✅ User registered successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 🚀 **Property Management APIs** 🚀
+
+// ✅ Register a Property for a User (Admin Only)
 app.post("/register-property", async (req, res) => {
     try {
-        const { name, propertyType, serialNumber, location, userAddress } = req.body;
-        if (!name || !propertyType || !serialNumber || !userAddress) {
-            return res.status(400).json({ error: "All fields are required" });
-        }
+        const { adminPrivateKey, name, propertyType, serialNumber, location, owner } = req.body;
 
-        const tx = await contract.connect(wallet).registerProperty(name, propertyType, serialNumber, location, { from: userAddress });
+        const wallet = new ethers.Wallet(adminPrivateKey, provider);
+        const contractWithSigner = propertyRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.registerProperty(name, propertyType, serialNumber, location, owner);
         await tx.wait();
-        res.json({ message: "Property registered successfully!", transactionHash: tx.hash, owner: userAddress });
+
+        res.json({ message: "✅ Property registered successfully!" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ Get Properties by Owner (Returns JSON)
-app.get("/user/:address/properties", async (req, res) => {
+// ✅ Transfer all properties from one user to another (Admin Only)
+app.post("/transfer-user-properties", async (req, res) => {
     try {
-        const propertyIds = await contract.getPropertiesByOwner(req.params.address);
-        let properties = [];
+        const { adminPrivateKey, fromUser, toUser } = req.body;
 
-        for (const id of propertyIds) {
-            const property = await contract.getProperty(id);
-            properties.push({
-                uniqueId: property[0],
-                name: property[1],
-                type: property[2],
-                serialNumber: property[3],
-                location: property[4] || "N/A",
-                owner: property[5]
-            });
+        const wallet = new ethers.Wallet(adminPrivateKey, provider);
+        const contractWithSigner = propertyRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.transferAllProperties(fromUser, toUser);
+        await tx.wait();
+
+        res.json({ message: "✅ All properties transferred successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ Recall a property (User Only)
+app.post("/recall-property", async (req, res) => {
+    try {
+        const { privateKey, uniqueId } = req.body;
+
+        const wallet = new ethers.Wallet(privateKey, provider);
+        const contractWithSigner = propertyRegistry.connect(wallet);
+
+        const tx = await contractWithSigner.recallProperty(uniqueId);
+        await tx.wait();
+
+        res.json({ message: "✅ Property recalled successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 🚀 **User Authentication APIs** 🚀
+
+// ✅ Authenticate a User
+app.post("/authenticate-user", async (req, res) => {
+    try {
+        const { userId, privateKey } = req.body;
+
+        const wallet = new ethers.Wallet(privateKey, provider);
+        const userAddress = await userRegistry.getAddressByUserId(userId);
+
+        if (wallet.address.toLowerCase() !== userAddress.toLowerCase()) {
+            return res.status(401).json({ error: "Invalid authentication credentials." });
         }
 
-        res.json({ owner: req.params.address, properties });
+        res.json({ message: "✅ Authentication successful!", userAddress });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+// 🚀 **Query APIs** 🚀
 
 // ✅ Get Property by Unique ID
 app.get("/property/id/:uniqueId", async (req, res) => {
     try {
-        const property = await contract.getProperty(req.params.uniqueId);
+        const property = await propertyRegistry.getProperty(req.params.uniqueId);
+        res.json(property);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ Get All Properties of a User
+app.get("/user/:address/properties", async (req, res) => {
+    try {
+        const propertyIds = await propertyRegistry.getPropertiesByOwner(req.params.address);
+        res.json({ owner: req.params.address, propertyIds });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 🚀 **Blockchain APIs** 🚀
+
+// ✅ Get Latest Block
+app.get("/latest-block", async (req, res) => {
+    try {
+        const block = await provider.getBlock("latest");
         res.json({
-            uniqueId: property[0],
-            name: property[1],
-            type: property[2],
-            serialNumber: property[3],
-            location: property[4] || "N/A",
-            owner: property[5]
+            blockNumber: block.number,
+            hash: block.hash,
+            transactions: block.transactions.length,
+            timestamp: new Date(block.timestamp * 1000),
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ Get Property by Serial Number
-
-app.get("/property/serial/:serialNumber", async (req, res) => {
+// ✅ Get Transactions by User
+app.get("/transactions/:userAddress", async (req, res) => {
     try {
-        const property = await contract.getPropertyBySerial(req.params.serialNumber);
-        res.json({
-            uniqueId: property[0],
-            name: property[1],
-            type: property[2],
-            serialNumber: property[3],
-            location: property[4] || "N/A",
-            owner: property[5]
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+        const latestBlock = await provider.getBlockNumber();
+        let transactions = [];
 
-// ✅ Get Property by Name
-app.get("/property/name/:name", async (req, res) => {
-    try {
-        const property = await contract.getPropertyByName(req.params.name);
-        res.json({
-            uniqueId: property[0],
-            name: property[1],
-            type: property[2],
-            serialNumber: property[3],
-            location: property[4] || "N/A",
-            owner: property[5]
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ✅ Get All Properties
-app.get("/properties", async (req, res) => {
-    try {
-        const propertyIds = await contract.getAllProperties();
-        let properties = [];
-
-        for (const id of propertyIds) {
-            const property = await contract.getProperty(id);
-            properties.push({
-                uniqueId: property[0],
-                name: property[1],
-                type: property[2],
-                serialNumber: property[3],
-                location: property[4] || "N/A",
-                owner: property[5]
+        for (let i = 0; i <= latestBlock; i++) {
+            const block = await provider.getBlockWithTransactions(i);
+            block.transactions.forEach(tx => {
+                if (tx.from.toLowerCase() === req.params.userAddress.toLowerCase() || tx.to === req.params.userAddress) {
+                    transactions.push(tx);
+                }
             });
         }
 
-        res.json({ properties });
+        res.json({ transactions });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ Transfer Property Ownership
-app.post("/transfer-property", async (req, res) => {
-    try {
-        const { uniqueId, newOwner } = req.body;
-        if (!uniqueId || !newOwner) {
-            return res.status(400).json({ error: "Unique ID and new owner address are required" });
-        }
-
-        const tx = await contract.connect(wallet).transferProperty(uniqueId, newOwner);
-        await tx.wait();
-
-        res.json({ message: "Ownership transferred successfully!", transactionHash: tx.hash });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
 
 // 🔹 Get List of All Blocks
@@ -271,5 +570,5 @@ app.get("/user/:address/transactions", async (req, res) => {
 // ✅ Start Server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log(`🚀 Blockchain Property Registry running at http://localhost:${PORT}`);
+    console.log(`🚀 Blockchain Property Registry API running at http://localhost:${PORT}`);
 });
