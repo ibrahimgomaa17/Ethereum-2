@@ -1,0 +1,95 @@
+[{
+    "inputs": [
+        {
+            "internalType": "string",
+            "name": "_name",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "_propertyType",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "_serialNumber",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "_location",
+            "type": "string"
+        },
+        {
+            "internalType": "address",
+            "name": "_owner",
+            "type": "address"
+        }
+    ],
+    "name": "registerProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "string",
+            "name": "_uniqueId",
+            "type": "string"
+        }
+    ],
+    "name": "getProperty",
+    "outputs": [
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        },
+        {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+        },
+        {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+        }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "internalType": "string",
+            "name": "_uniqueId",
+            "type": "string"
+        },
+        {
+            "internalType": "address",
+            "name": "_newOwner",
+            "type": "address"
+        }
+    ],
+    "name": "transferProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}]

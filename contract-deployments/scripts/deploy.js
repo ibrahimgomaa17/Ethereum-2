@@ -22,7 +22,7 @@ async function main() {
     console.log(`🔑 Using deployer address: ${wallet.address}`);
 
     // ✅ Deploy Smart Contract
-    const PropertyRegistry = await hre.ethers.getContractFactory("PropertyRegistry", wallet);
+    const PropertyRegistry = await hre.ethers.getContractFactory("UserRegistry", wallet);
     const contract = await PropertyRegistry.deploy();
 
     // ✅ Wait for deployment confirmation
