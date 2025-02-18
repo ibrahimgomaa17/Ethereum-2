@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "🚀 Starting Geth Blockchain Node..."
+geth --syncmode snap --datadir data/ --networkid 1337 --http --http.api "eth,web3,personal,net,txpool,miner,admin" --http.addr "127.0.0.1" --http.port 8545 --unlock "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --password password.txt --allow-insecure-unlock --miner.etherbase "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --miner.gaslimit 40000000 --nodiscover --txlookuplimit 0 &
+
+# Wait for a few seconds to ensure Geth is running before attaching
+sleep 10
+
+echo "🔗 Attaching to Geth..."
+geth attach http://127.0.0.1:8545 --exec "loadScript('/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js')"
+
+echo "✅ Auto-mining script loaded successfully!"
+[B≈≈A
