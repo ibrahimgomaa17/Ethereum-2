@@ -1,13 +1,5 @@
 #!/bin/bash
 
-echo "🔍 Checking for existing Geth data directory..."
-if [ -d "data/geth" ]; then
-    echo "🗑️ Deleting old blockchain data (data/geth)..."
-    rm -rf data/geth
-    echo "⏳ Waiting 5 seconds after deletion..."
-    sleep 5
-fi
-
 echo "🔍 Checking for running Geth processes..."
 GETH_PID=$(pgrep -f "geth --syncmode")
 
@@ -17,11 +9,6 @@ if [ -n "$GETH_PID" ]; then
     sleep 5  # Wait for process to stop
 fi
 
-# ✅ Initialize Blockchain with Genesis Block
-echo "🔗 Initializing blockchain with genesis.json..."
-geth --datadir data init genesis.json
-
-# ✅ Start Geth Node (Process 1)
 echo "🚀 Starting Geth Blockchain Node (Process 1)..."
 geth --syncmode snap --datadir data/ --networkid 1337 --http --http.api "eth,web3,personal,net,txpool,miner,admin" --http.addr "127.0.0.1" --http.port 8545 --unlock "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --password password.txt --allow-insecure-unlock --miner.etherbase "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --miner.gaslimit 40000000 --nodiscover --txlookuplimit 0 &
 
@@ -32,29 +19,44 @@ echo "📌 New Geth PID: $NEW_GETH_PID"
 echo "⏳ Waiting for Geth to start..."
 sleep 10
 
-# ✅ Load Auto-Mining Script (Process 2)
-echo "🔗 Attaching to Geth and Loading Auto-Mining Script (Process 2)..."
-(
-    sleep 5
-    geth attach http://127.0.0.1:8545 <<EOF
-loadScript("/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js")
-EOF
-) & disown
+# ✅ Open a new terminal and attach to Geth with `--preload`
+echo "🔗 Attaching to Geth in a new terminal and loading Auto-Mining Script..."
 
-# Capture the process ID (PID) of the Geth attachment
-ATTACH_PID=$!
-echo "📌 Attach PID: $ATTACH_PID"
-
-# ✅ Wait 5 seconds before deploying with Hardhat
-echo "⏳ Waiting 5 seconds before Hardhat deployment..."
-sleep 5
+osascript -e 'tell application "Terminal" to do script "geth attach --preload \"/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js\" http://127.0.0.1:8545; exec bash"' &
 
 # ✅ Deploy Smart Contracts using Hardhat (Process 3)
+DEPLOY_DIR="/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat"
+
+if [ ! -d "$DEPLOY_DIR" ]; then
+    echo "⚠️ Deployment directory does not exist: $DEPLOY_DIR"
+    echo "🔍 Searching for contract deployment directory..."
+    
+    # Try another directory
+    DEPLOY_DIR="/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain"
+    
+    if [ ! -d "$DEPLOY_DIR" ]; then
+        echo "❌ No valid contract deployment directory found!"
+        exit 1
+    fi
+fi
+
 echo "🚀 Deploying Smart Contracts with Hardhat (Process 3)..."
 (
-    cd /Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat || exit
+    cd "$DEPLOY_DIR"
 
-    # Ensure dependencies are installed
+    # Ensure package.json exists
+    if [ ! -f "package.json" ]; then
+        echo "⚠️ package.json missing! Initializing a new project..."
+        npm init -y
+        npm install --save-dev hardhat
+    fi
+
+    # Ensure Hardhat is installed
+    if ! npx hardhat --version &>/dev/null; then
+        echo "⚠️ Hardhat is not installed! Installing..."
+        npm install --save-dev hardhat
+    fi
+
     echo "📦 Installing dependencies..."
     npm install
 
@@ -67,15 +69,17 @@ echo "🚀 Deploying Smart Contracts with Hardhat (Process 3)..."
     npx hardhat run scripts/deploy.js --network geth
 
     echo "✅ Contracts deployed successfully!"
-) & disown
+) &
 
 DEPLOY_PID=$!
 echo "📌 Deployment PID: $DEPLOY_PID"
 
 echo "✅ All processes started successfully!"
 echo "📌 Geth PID: $NEW_GETH_PID"
-echo "📌 Attach PID: $ATTACH_PID"
 echo "📌 Deploy PID: $DEPLOY_PID"
 
+# 🛑 Trap to handle script termination and clean up processes
+trap "echo '⛔ Terminating processes...'; kill -9 $NEW_GETH_PID $DEPLOY_PID; exit" SIGINT SIGTERM
+
 # Keep the script running to prevent termination
-wait $NEW_GETH_PID
+wait

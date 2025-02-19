@@ -1,0 +1,26 @@
+
+up to date, audited 584 packages in 9s
+
+98 packages are looking for funding
+  run `npm fund` for details
+
+29 vulnerabilities (11 low, 2 high, 16 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+Nothing to compile
+🚀 Deploying Contracts...
+🔹 Deploying UserRegistry...
+❌ Deployment failed: ProviderError: transaction indexing is in progress
+    at HttpProvider.request (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/node_modules/hardhat/src/internal/core/providers/http.ts:107:21)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at HardhatEthersProvider.getTransactionReceipt (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/node_modules/@nomicfoundation/hardhat-ethers/src/internal/hardhat-ethers-provider.ts:334:21)
+    at ContractTransactionResponse.wait (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/node_modules/ethers/src.ts/providers/provider.ts:1596:25)
+    at ContractTransactionResponse.wait (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/node_modules/ethers/src.ts/contract/wrappers.ts:136:25)
+    at Proxy.waitForDeployment (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/node_modules/ethers/src.ts/contract/contract.ts:847:13)
+    at main (/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat/scripts/deploy.js:11:5)

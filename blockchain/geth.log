@@ -1,0 +1,68 @@
+INFO [02-19|07:48:47.339] Maximum peer count                       ETH=50 total=50
+WARN [02-19|07:48:47.341] The flag --txlookuplimit is deprecated and will be removed, please use --history.transactions
+INFO [02-19|07:48:47.341] Set global gas cap                       cap=50,000,000
+INFO [02-19|07:48:47.341] Initializing the KZG library             backend=gokzg
+INFO [02-19|07:48:47.366] Allocated trie memory caches             clean=154.00MiB dirty=256.00MiB
+INFO [02-19|07:48:47.366] Using pebble as the backing database
+INFO [02-19|07:48:47.366] Allocated cache and file handles         database=/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/data/geth/chaindata cache=512.00MiB handles=5120
+INFO [02-19|07:48:47.405] Opened ancient database                  database=/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/data/geth/chaindata/ancient/chain readonly=false
+INFO [02-19|07:48:47.406] State scheme set to already existing     scheme=hash
+INFO [02-19|07:48:47.406] Initialising Ethereum protocol           network=1337 dbversion=<nil>
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.409] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [02-19|07:48:47.409] Chain ID:  1337 (unknown)
+INFO [02-19|07:48:47.409] Consensus: Clique (proof-of-authority)
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.409] Pre-Merge hard forks (block based):
+INFO [02-19|07:48:47.409]  - Homestead:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/homestead.md)
+INFO [02-19|07:48:47.409]  - Tangerine Whistle (EIP 150): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/tangerine-whistle.md)
+INFO [02-19|07:48:47.409]  - Spurious Dragon/1 (EIP 155): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [02-19|07:48:47.409]  - Spurious Dragon/2 (EIP 158): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [02-19|07:48:47.409]  - Byzantium:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/byzantium.md)
+INFO [02-19|07:48:47.409]  - Constantinople:              #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/constantinople.md)
+INFO [02-19|07:48:47.409]  - Petersburg:                  #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/petersburg.md)
+INFO [02-19|07:48:47.409]  - Istanbul:                    #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/istanbul.md)
+INFO [02-19|07:48:47.409]  - Berlin:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/berlin.md)
+INFO [02-19|07:48:47.409]  - London:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/london.md)
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.409] The Merge is not yet available for this network!
+INFO [02-19|07:48:47.409]  - Hard-fork specification: https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/paris.md
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.409] Post-Merge hard forks (timestamp based):
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.409] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [02-19|07:48:47.409] 
+INFO [02-19|07:48:47.410] Loaded most recent local block           number=0 hash=b19e5f..c406e4 td=1 age=55y11mo1w
+WARN [02-19|07:48:47.410] Failed to load snapshot                  err="missing or corrupted snapshot"
+INFO [02-19|07:48:47.418] Rebuilding state snapshot
+INFO [02-19|07:48:47.422] Initialized transaction indexer          range="entire chain"
+INFO [02-19|07:48:47.422] Resuming state snapshot generation       root=0f8ffa..58717b accounts=0 slots=0 storage=0.00B dangling=0 elapsed=4.460ms
+INFO [02-19|07:48:47.426] Generated state snapshot                 accounts=1 slots=0 storage=47.00B dangling=0 elapsed=8.197ms
+INFO [02-19|07:48:47.426] Regenerated local transaction journal    transactions=0 accounts=0
+INFO [02-19|07:48:47.542] Enabled snap sync                        head=0 hash=b19e5f..c406e4
+INFO [02-19|07:48:47.543] Gasprice oracle is ignoring threshold set threshold=2
+INFO [02-19|07:48:47.548] Stored checkpoint snapshot to disk       number=0 hash=b19e5f..c406e4
+WARN [02-19|07:48:47.553] Engine API enabled                       protocol=eth
+WARN [02-19|07:48:47.553] Engine API started but chain not configured for merge yet
+INFO [02-19|07:48:47.553] Starting peer-to-peer node               instance=Geth/v1.13.13-stable-7f131dcb/darwin-arm64/go1.21.13
+INFO [02-19|07:48:47.579] New local node record                    seq=1,739,940,527,578 id=ac9fb68c75cf6035 ip=127.0.0.1 udp=0 tcp=30303
+INFO [02-19|07:48:47.579] Started P2P networking                   self="enode://259b65ab0fc9323180575d96e4c31fa51438d9b095e97ca29945e7b2f9e4e8c93aa7bc20b94d8c4b83aa6a59eeda0e7b838302c2134ed790bf86918d8c4b7b79@127.0.0.1:30303?discport=0"
+INFO [02-19|07:48:47.580] IPC endpoint opened                      url=/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/data/geth.ipc
+INFO [02-19|07:48:47.581] Generated JWT secret                     path=/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/data/geth/jwtsecret
+INFO [02-19|07:48:47.581] HTTP server started                      endpoint=127.0.0.1:8545 auth=false prefix= cors= vhosts=localhost
+INFO [02-19|07:48:47.583] WebSocket enabled                        url=ws://127.0.0.1:8551
+INFO [02-19|07:48:47.583] HTTP server started                      endpoint=127.0.0.1:8551 auth=true  prefix= cors=localhost vhosts=localhost
+INFO [02-19|07:48:48.083] Unlocked account                         address=0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad
+WARN [02-19|07:48:57.371] Served eth_sendTransaction               conn=127.0.0.1:49492 reqid=11 duration="784.958µs" err="intrinsic gas too low: needed 21112, allowed 21000"
+INFO [02-19|07:49:12.865] Setting new local account                address=0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad
+INFO [02-19|07:49:12.865] Submitted contract creation              hash=0x8277b2f45a1c53ac299374ebe1cb1b1dd703c87d55ef6725e891805857ed709e from=0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad nonce=0 contract=0xF3458a399efF481DB4bF305B243a84707038e1Bd value=0
+WARN [02-19|07:49:12.869] Served eth_getTransactionReceipt         conn=127.0.0.1:49504 reqid=8 duration="71.833µs" err="transaction indexing is in progress" errdata="transaction indexing is in progress"
+INFO [02-19|07:50:44.312] Got interrupt, shutting down...
+INFO [02-19|07:50:44.312] HTTP server stopped                      endpoint=127.0.0.1:8545
+INFO [02-19|07:50:44.312] HTTP server stopped                      endpoint=127.0.0.1:8551
+INFO [02-19|07:50:44.312] IPC endpoint closed                      url=/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/data/geth.ipc
+INFO [02-19|07:50:44.313] Ethereum protocol stopped
+INFO [02-19|07:50:44.313] Transaction pool stopped
+INFO [02-19|07:50:44.326] Writing snapshot state to disk           root=0f8ffa..58717b
+INFO [02-19|07:50:44.326] Persisted trie from memory database      nodes=0 size=0.00B time="2.916µs" gcnodes=0 gcsize=0.00B gctime=0s livenodes=0 livesize=0.00B
+INFO [02-19|07:50:44.326] Blockchain stopped
