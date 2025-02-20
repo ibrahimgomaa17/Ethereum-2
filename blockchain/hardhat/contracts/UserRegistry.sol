@@ -9,77 +9,102 @@ contract UserRegistry {
     }
 
     struct AssetTransfer {
-        address previousOwner;
-        address newOwner;
+        string previousOwnerId;
+        string newOwnerId;
         uint256 transferTime;
         bool isRecalled;
     }
 
-    mapping(address => User) private users;
-    mapping(string => address) private userIdToAddress;
-    mapping(address => bool) private admins;
-    mapping(address => AssetTransfer[]) private transferHistory;
+    mapping(string => User) private users; // Mapping from userId to User
+    mapping(address => string) private addressToUserId; // Mapping from address to userId
+    mapping(string => bool) private admins; // Admins by userId
+    mapping(string => AssetTransfer[]) private transferHistory; // Transfer history by userId
 
-    address public immutable poaAdmin;
+    bytes32 public immutable poaAdminId;
 
     event UserRegistered(string userId, address walletAddress, bool isAdmin);
-    event AdminAdded(address indexed admin);
-    event AdminRemoved(address indexed admin);
-    event AssetsTransferred(address indexed from, address indexed to);
-    event AssetRecalled(address indexed from, address indexed recalledBy);
+    event AdminAdded(string indexed adminId);
+    event AdminRemoved(string indexed adminId);
+    event AssetsTransferred(string indexed fromId, string indexed toId);
+    event AssetRecalled(string indexed fromId, string indexed recalledById);
 
     modifier onlyAdmin() {
-        require(admins[msg.sender], "Access Denied: Only admins can perform this action.");
+        require(admins[addressToUserId[msg.sender]], "Access Denied: Only admins can perform this action.");
         _;
     }
 
     modifier onlyPoaAdmin() {
-        require(msg.sender == poaAdmin, "Access Denied: Only the PoA admin can remove admins.");
+        require(keccak256(abi.encodePacked(addressToUserId[msg.sender])) == poaAdminId, 
+            "Access Denied: Only the PoA admin can remove admins.");
         _;
     }
 
     constructor() {
-        poaAdmin = msg.sender;
-        admins[msg.sender] = true;
-        users[msg.sender] = User("admin", msg.sender, true);
-        emit AdminAdded(msg.sender);
+        poaAdminId = keccak256(abi.encodePacked("admin"));
+        users["admin"] = User("admin", msg.sender, true);
+        addressToUserId[msg.sender] = "admin";
+        admins["admin"] = true;
+        emit AdminAdded("admin");
     }
 
     function registerUser(string memory _userId, address _walletAddress, bool _isAdmin) public onlyAdmin {
-        require(users[_walletAddress].walletAddress == address(0), "Error: User already exists.");
-        require(userIdToAddress[_userId] == address(0), "Error: User ID already taken.");
+        require(users[_userId].walletAddress == address(0), "Error: User ID already taken.");
+        require(bytes(addressToUserId[_walletAddress]).length == 0, "Error: Address already associated with a user.");
 
-        users[_walletAddress] = User(_userId, _walletAddress, _isAdmin);
-        userIdToAddress[_userId] = _walletAddress;
+        users[_userId] = User(_userId, _walletAddress, _isAdmin);
+        addressToUserId[_walletAddress] = _userId;
 
         if (_isAdmin) {
-            admins[_walletAddress] = true;
-            emit AdminAdded(_walletAddress);
+            admins[_userId] = true;
+            emit AdminAdded(_userId);
         }
 
         emit UserRegistered(_userId, _walletAddress, _isAdmin);
     }
 
-    function removeAdmin(address _admin) public onlyPoaAdmin {
-        require(admins[_admin], "Error: Address is not an admin.");
-        require(_admin != poaAdmin, "Error: Cannot remove the PoA admin.");
+    function removeAdmin(string memory _adminId) public onlyPoaAdmin {
+        require(admins[_adminId], "Error: User is not an admin.");
+        require(keccak256(abi.encodePacked(_adminId)) != keccak256(abi.encodePacked(poaAdminId)), "Error: Cannot remove the PoA admin.");
 
-        admins[_admin] = false;
-        emit AdminRemoved(_admin);
+        admins[_adminId] = false;
+        emit AdminRemoved(_adminId);
     }
 
-    function isAdmin(address _addr) public view returns (bool) {
-        return admins[_addr];
+    function isAdmin(string memory _userId) public view returns (bool) {
+        return admins[_userId];
     }
 
-    function getUserByAddress(address _walletAddress) public view returns (string memory, address, bool) {
-        require(users[_walletAddress].walletAddress != address(0), "Error: User not found.");
-        User memory user = users[_walletAddress];
+    function getUserById(string memory _userId) public view returns (string memory, address, bool) {
+        require(users[_userId].walletAddress != address(0), "Error: User not found.");
+        User memory user = users[_userId];
         return (user.userId, user.walletAddress, user.isAdmin);
     }
 
-    function getAddressByUserId(string memory _userId) public view returns (address) {
-        require(userIdToAddress[_userId] != address(0), "Error: User ID not found.");
-        return userIdToAddress[_userId];
+    function getUserIdByAddress(address _walletAddress) public view returns (string memory) {
+        require(bytes(addressToUserId[_walletAddress]).length > 0, "Error: Address not associated with any user.");
+        return addressToUserId[_walletAddress];
+    }
+
+    function transferAssets(string memory _fromId, string memory _toId) public {
+        require(users[_fromId].walletAddress == msg.sender, "Error: Only the asset owner can transfer assets.");
+        require(users[_toId].walletAddress != address(0), "Error: Recipient user does not exist.");
+
+        transferHistory[_fromId].push(AssetTransfer({
+            previousOwnerId: _fromId,
+            newOwnerId: _toId,
+            transferTime: block.timestamp,
+            isRecalled: false
+        }));
+
+        emit AssetsTransferred(_fromId, _toId);
+    }
+
+    function recallAsset(string memory _fromId) public onlyAdmin {
+        require(transferHistory[_fromId].length > 0, "Error: No transfer history found.");
+        
+        AssetTransfer storage lastTransfer = transferHistory[_fromId][transferHistory[_fromId].length - 1];
+        lastTransfer.isRecalled = true;
+
+        emit AssetRecalled(_fromId, addressToUserId[msg.sender]);
     }
 }

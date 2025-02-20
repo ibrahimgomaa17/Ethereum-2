@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Get the absolute path of the script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Get the project root directory (assumes script is inside the project folder)
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+echo "🔍 Project Root Directory: $PROJECT_ROOT"
+
 echo "🔍 Checking for running Geth processes..."
 GETH_PID=$(pgrep -f "geth --syncmode")
 
@@ -10,7 +18,7 @@ if [ -n "$GETH_PID" ]; then
 fi
 
 echo "🚀 Starting Geth Blockchain Node (Process 1)..."
-geth --syncmode snap --datadir data/ --networkid 1337 --http --http.api "eth,web3,personal,net,txpool,miner,admin" --http.addr "127.0.0.1" --http.port 8545 --unlock "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --password password.txt --allow-insecure-unlock --miner.etherbase "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --miner.gaslimit 40000000 --nodiscover --txlookuplimit 0 &
+geth --syncmode snap --datadir "$PROJECT_ROOT/blockchain/data/" --networkid 1337 --http --http.api "eth,web3,personal,net,txpool,miner,admin" --http.addr "127.0.0.1" --http.port 8545 --unlock "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --password "$PROJECT_ROOT/blockchain/password.txt" --allow-insecure-unlock --miner.etherbase "0x6603B5D2a0A6F7D4e1F75Cb83fB9d0AdC4Ca21Ad" --miner.gaslimit 40000000 --nodiscover --txlookuplimit 0 &
 
 # Capture the process ID (PID) of the Geth node
 NEW_GETH_PID=$!
@@ -21,18 +29,17 @@ sleep 10
 
 # ✅ Open a new terminal and attach to Geth with `--preload`
 echo "🔗 Attaching to Geth in a new terminal and loading Auto-Mining Script..."
-
-osascript -e 'tell application "Terminal" to do script "geth attach --preload \"/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js\" http://127.0.0.1:8545; exec bash"' &
+osascript -e "tell application \"Terminal\" to do script \"geth attach --preload '$PROJECT_ROOT/blockchain/autoMine.js' http://127.0.0.1:8545; exec bash\"" &
 
 # ✅ Deploy Smart Contracts using Hardhat (Process 3)
-DEPLOY_DIR="/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/hardhat"
+DEPLOY_DIR="$PROJECT_ROOT/blockchain/hardhat"
 
 if [ ! -d "$DEPLOY_DIR" ]; then
     echo "⚠️ Deployment directory does not exist: $DEPLOY_DIR"
     echo "🔍 Searching for contract deployment directory..."
     
     # Try another directory
-    DEPLOY_DIR="/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain"
+    DEPLOY_DIR="$PROJECT_ROOT/blockchain"
     
     if [ ! -d "$DEPLOY_DIR" ]; then
         echo "❌ No valid contract deployment directory found!"

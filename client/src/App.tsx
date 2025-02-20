@@ -1,35 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import UserDashboard from "./pages/UserDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./pages/admin/Dashboard";
+import Settings from "./pages/admin/Settings";
+import UserManagement from "./pages/admin/UserManagement";
+import AssetManagement from "./pages/admin/AssetManagement";
+import Header from "./components/Header";
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [token, setToken] = useState(localStorage.getItem("jwtToken"));
+  const [user, setUser] = useState(
+    token ? JSON.parse(localStorage.getItem("user") || "{}") : null
+  );
+
+  const handleLogin = (token: string, user: any) => {
+    localStorage.setItem("jwtToken", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    setToken(token);
+    setUser(user);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Header token={token} user={user} onLogout={handleLogout} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/user-dashboard" element={token ? <UserDashboard /> : <Navigate to="/login" />} />
+
+        {/* ✅ Admin Dashboard with Nested Routes */}
+        <Route path="/admin-dashboard" element={token && user?.userRole == 'Admin' ? <AdminDashboard /> : <Navigate to="/login" />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="user-management" element={<UserManagement />} />
+          <Route path="asset-management" element={<AssetManagement />} />
+        </Route>
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
