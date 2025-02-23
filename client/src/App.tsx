@@ -32,20 +32,25 @@ function App() {
 
   return (
     <>
-      <Header token={token} user={user} onLogout={handleLogout} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="/user-dashboard" element={token ? <UserDashboard /> : <Navigate to="/login" />} />
+      <body className="flex flex-col items-stretch min-h-screen min-w-screen">
+        <Header token={token} user={user} onLogout={handleLogout} />
+        <main className="flex flex-row items-stretch justify-center min-h-[calc(100vh-64px)] bg-gray-100">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/user-dashboard" element={token ? <UserDashboard /> : <Navigate to="/login" />} />
 
-        {/* ✅ Admin Dashboard with Nested Routes */}
-        <Route path="/admin-dashboard" element={token && user?.userRole == 'Admin' ? <AdminDashboard /> : <Navigate to="/login" />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="user-management" element={<UserManagement />} />
-          <Route path="asset-management" element={<AssetManagement />} />
-        </Route>
-      </Routes>
+            {/* ✅ Admin Dashboard with Nested Routes */}
+            <Route path="/admin-dashboard" element={token && user?.userRole == 'Admin' ? <AdminDashboard /> : <Navigate to="/login" />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="user-management" element={<UserManagement />} />
+              <Route path="asset-management" element={<AssetManagement />} />
+            </Route>
+          </Routes>
+        </main>
+
+      </body>
     </>
   );
 }

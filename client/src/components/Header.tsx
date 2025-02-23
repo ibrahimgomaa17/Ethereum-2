@@ -1,47 +1,103 @@
-import { Link } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Box, { BoxProps } from "@mui/material/Box";
+import { Link as RouterLink } from "react-router-dom";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 
-const Header = ({
-    token,
-    user,
-    onLogout,
-}: {
+interface HeaderProps {
     token: string | null;
     user: any;
     onLogout: () => void;
-}) => {
+}
+
+const Header = ({ token, user, onLogout }: HeaderProps) => {
     return (
-        <header className="bg-gray-900 text-white py-4 shadow-lg">
-            <div className="container mx-auto flex justify-between items-center px-6">
-                {/* Logo or Brand */}
-                <Link to="/" className="text-xl font-semibold text-blue-400 hover:text-blue-300">
+        <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: 3 }}>
+            <Toolbar sx={{ justifyContent: "space-between", px: 3 }}>
+                {/* Logo/Brand */}
+                <Typography
+                    variant="h6"
+                    component={RouterLink}
+                    to="/"
+                    sx={{
+                        textDecoration: "none",
+                        color: "grey.700",
+                        fontWeight: 600,
+                        "&:hover": { color: "blue.300" },
+                    }}
+                >
                     Blockchain Registry
-                </Link>
+                </Typography>
 
                 {/* Navigation Links */}
-                <nav className="flex items-center space-x-6">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     {token ? (
                         <>
-                            <span className="text-gray-300">
-                                Welcome, <span className="font-semibold">{user?.userId}</span>
-                            </span>
-                            <button
+                            <Typography variant="body1" sx={{ color: "grey.300" }}>
+                                Welcome, <span style={{ fontWeight: 600 }}>{user?.userId}</span>
+                            </Typography>
+                            <Button
                                 onClick={onLogout}
-                                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all" >
+                                variant="contained"
+                                sx={{
+                                    bgcolor: "red.500",
+                                    "&:hover": { bgcolor: "red.600" },
+                                }}
+                            >
                                 Logout
-                            </button>
+                            </Button>
                         </>
                     ) : (
-                        <Link
+                        <CustomIcon
+                            component={RouterLink}
                             to="/login"
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all"
-                        >
-                            Login
-                        </Link>
+                            sx={{
+                                bgcolor: "blue.500",
+                                "&:hover": { bgcolor: "blue.600" },
+                            }}
+                        />
                     )}
-                </nav>
-            </div>
-        </header>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 };
 
 export default Header;
+
+import { LinkProps } from "react-router-dom";
+
+type CombinedProps = Omit<BoxProps, 'color' | 'onAbort'> & Omit<LinkProps, 'color' | 'onAbort'>;
+
+interface CustomIconProps extends CombinedProps {
+    color?: BoxProps['color'] | LinkProps['color'];
+}
+
+export function CustomIcon({ sx, ...props }: CustomIconProps) {
+    return (
+        <Box
+            {...props}
+            sx={[
+                {
+                    width: "1.5rem",
+                    height: "1.5rem",
+                    borderRadius: "999px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundImage:
+                        "linear-gradient(135deg, hsl(210, 98%, 60%) 0%, hsl(210, 100%, 35%) 100%)",
+                    color: "hsla(210, 100%, 95%, 0.9)",
+                    border: "1px solid",
+                    borderColor: "hsl(210, 100%, 55%)",
+                    boxShadow: "inset 0 2px 5px rgba(255, 255, 255, 0.3)",
+                },
+                ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+        >
+            <DashboardRoundedIcon color="inherit" sx={{ fontSize: "1rem" }} />
+        </Box>
+    );
+}
