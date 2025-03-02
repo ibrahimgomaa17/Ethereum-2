@@ -1,6 +1,8 @@
+import { Button } from "@mui/joy";
+import Input from "@mui/joy/Input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Link as RouterLink } from "react-router-dom";
 const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => {
   const [userId, setUserId] = useState("");
   const [privateKey, setPrivateKey] = useState("");
@@ -38,15 +40,15 @@ const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => 
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-96">
+    <div className="flex items-center justify-center ">
+      <div className="bg-white border border-gray-200 rounded-lg p-8 w-96 mb-20">
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">Login</h2>
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <div className="mb-4">
           <label className="block text-gray-600 text-sm font-medium mb-2">User ID</label>
-          <input
+          <Input
             type="text"
             className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter User ID"
@@ -57,7 +59,7 @@ const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => 
 
         <div className="mb-4">
           <label className="block text-gray-600 text-sm font-medium mb-2">Private Key</label>
-          <input
+          <Input
             type="password"
             className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter Private Key"
@@ -66,12 +68,26 @@ const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => 
           />
         </div>
 
-        <button
+        <Button
           onClick={handleLogin}
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-all"
+          color="primary"
+          variant="solid"
+          fullWidth
+          sx={{ marginTop: 2 }}
         >
           Login
-        </button>
+        </Button>
+        <div className="flex flex-col items-center justify-center w-full h-0 border-t border-gray-300 mt-4">
+          <span className="bg-white px-2 text-gray-400 text-xs">or</span>
+        </div>
+        <Button component={RouterLink} to="/register" color="primary"
+          variant="plain"
+          fullWidth
+          sx={{ marginTop: 2 }}
+        >
+          Register
+        </Button>
+
       </div>
     </div>
   );

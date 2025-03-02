@@ -1,7 +1,6 @@
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 import Box, { BoxProps } from "@mui/material/Box";
 import { Link as RouterLink } from "react-router-dom";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
@@ -50,14 +49,14 @@ const Header = ({ token, user, onLogout }: HeaderProps) => {
                             </Button>
                         </>
                     ) : (
-                        <CustomIcon
-                            component={RouterLink}
-                            to="/login"
-                            sx={{
-                                bgcolor: "blue.500",
-                                "&:hover": { bgcolor: "blue.600" },
-                            }}
-                        />
+                        <Button component={RouterLink} to="/login" color="primary"
+                            fullWidth
+                            variant="plain"
+                        >
+                            Login
+                        </Button>
+
+
                     )}
                 </Box>
             </Toolbar>
@@ -68,6 +67,7 @@ const Header = ({ token, user, onLogout }: HeaderProps) => {
 export default Header;
 
 import { LinkProps } from "react-router-dom";
+import { Button } from "@mui/joy";
 
 type CombinedProps = Omit<BoxProps, 'color' | 'onAbort'> & Omit<LinkProps, 'color' | 'onAbort'>;
 

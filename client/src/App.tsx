@@ -9,6 +9,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import AssetManagement from "./pages/admin/AssetManagement";
 import Header from "./components/Header";
 import { useState } from "react";
+import Register from "./pages/Register";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
@@ -38,6 +39,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/user-dashboard" element={token ? <UserDashboard /> : <Navigate to="/login" />} />
 
             {/* ✅ Admin Dashboard with Nested Routes */}

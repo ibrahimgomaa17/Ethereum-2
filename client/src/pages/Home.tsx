@@ -12,12 +12,13 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center h-full min-h-[40rem]">
       <h1 className="text-3xl font-semibold text-gray-800 mb-8">
-        Blockchain Asset Search
+        Asset Search
       </h1>
 
       <Input
+      placeholder="Search for assets"
         startDecorator={<SearchIcon />}
-        endDecorator={<Button>Message</Button>}
+        endDecorator={<Button>Search</Button>}
         sx={{
           "--Input-radius": "30px",
           "--Input-gap": "10px",
