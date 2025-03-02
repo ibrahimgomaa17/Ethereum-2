@@ -39,7 +39,7 @@ const Header = ({ token, user, onLogout }: HeaderProps) => {
                             </Typography>
                             <Button
                                 onClick={onLogout}
-                                variant="contained"
+                                variant="plain"
                                 sx={{
                                     bgcolor: "red.500",
                                     "&:hover": { bgcolor: "red.600" },
