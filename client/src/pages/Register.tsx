@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Box, Button, Input, Typography, Card, CardContent } from '@mui/joy';
+import { Box, Button, Input, Typography, Card, CardContent } from "@mui/joy";
+import { registerUser } from "../services/auth";
 
 const RegistrationForm = () => {
   const [userId, setUserId] = useState("");
@@ -9,34 +10,23 @@ const RegistrationForm = () => {
   const handleRegister = async () => {
     setError(null);
     setSuccess(null);
-
+debugger
     if (!userId.trim()) {
       setError("User ID is required");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:4000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess("User registered successfully!");
-      } else {
-        setError(data.error || "Failed to register user");
-      }
-    } catch (error) {
-      setError("Failed to connect to the server.");
+      await registerUser(userId); // Use the service here
+      setSuccess("User registered successfully!");
+    } catch (err: any) {
+      setError(err.message || "Failed to register user");
     }
   };
 
   return (
     <Box className="flex items-center justify-center">
-      <Card variant="outlined" sx={{ width: 400, padding: 3, marginBottom: '10rem' }}>
+      <Card variant="outlined" sx={{ width: 400, padding: 3, marginBottom: "10rem" }}>
         <CardContent>
           <Typography level="h4" fontWeight="bold" textAlign="center" mb={2}>
             User Registration
@@ -54,9 +44,7 @@ const RegistrationForm = () => {
           )}
 
           <Box mb={2}>
-            <Typography fontWeight="medium">
-              User ID
-            </Typography>
+            <Typography fontWeight="medium">User ID</Typography>
             <Input
               placeholder="Enter User ID"
               value={userId}

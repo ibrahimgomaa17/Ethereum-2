@@ -35,16 +35,6 @@
                 "internalType": "string",
                 "name": "_userId",
                 "type": "string"
-            },
-            {
-                "internalType": "address",
-                "name": "_walletAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "_isAdmin",
-                "type": "bool"
             }
         ],
         "name": "registerUser",

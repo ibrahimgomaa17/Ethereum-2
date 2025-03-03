@@ -33,7 +33,7 @@ function App() {
 
   return (
     <>
-      <body className="flex flex-col items-stretch min-h-screen min-w-screen">
+      <div className="flex flex-col items-stretch min-h-screen min-w-screen">
         <Header token={token} user={user} onLogout={handleLogout} />
         <main className="flex flex-row items-stretch justify-center min-h-[calc(100vh-64px)] bg-gray-100">
           <Routes>
@@ -52,7 +52,7 @@ function App() {
           </Routes>
         </main>
 
-      </body>
+      </div>
     </>
   );
 }

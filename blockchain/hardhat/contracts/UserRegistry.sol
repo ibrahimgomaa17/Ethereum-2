@@ -47,24 +47,19 @@ contract UserRegistry {
         emit AdminAdded("admin");
     }
 
-    function registerUser(string memory _userId, address _walletAddress, bool _isAdmin) public onlyAdmin {
+    function registerUser(string memory _userId) public {
         require(users[_userId].walletAddress == address(0), "Error: User ID already taken.");
-        require(bytes(addressToUserId[_walletAddress]).length == 0, "Error: Address already associated with a user.");
+        require(bytes(addressToUserId[msg.sender]).length == 0, "Error: Address already associated with a user.");
 
-        users[_userId] = User(_userId, _walletAddress, _isAdmin);
-        addressToUserId[_walletAddress] = _userId;
+        users[_userId] = User(_userId, msg.sender, false);
+        addressToUserId[msg.sender] = _userId;
 
-        if (_isAdmin) {
-            admins[_userId] = true;
-            emit AdminAdded(_userId);
-        }
-
-        emit UserRegistered(_userId, _walletAddress, _isAdmin);
+        emit UserRegistered(_userId, msg.sender, false);
     }
 
     function removeAdmin(string memory _adminId) public onlyPoaAdmin {
         require(admins[_adminId], "Error: User is not an admin.");
-        require(keccak256(abi.encodePacked(_adminId)) != keccak256(abi.encodePacked(poaAdminId)), "Error: Cannot remove the PoA admin.");
+        require(keccak256(abi.encodePacked(_adminId)) != poaAdminId, "Error: Cannot remove the PoA admin.");
 
         admins[_adminId] = false;
         emit AdminRemoved(_adminId);
