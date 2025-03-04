@@ -27,9 +27,9 @@ const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => 
 
         // ✅ Redirect based on user role
         if (data.user.userRole === "Admin") {
-          navigate("/admin-dashboard/dashboard"); // Redirect to Admin Dashboard
+          navigate("/admin"); // Redirect to Admin Dashboard
         } else {
-          navigate("/user-dashboard"); // Redirect to User Dashboard
+          navigate("/user"); // Redirect to User Dashboard
         }
       } else {
         setError(data.error || "Invalid login credentials");

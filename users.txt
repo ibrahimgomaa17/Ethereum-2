@@ -1,0 +1,7 @@
+users:
+{
+  "message": "User registered successfully. User must save this wallet information!",
+  "userId": "sssss",
+  "walletAddress": "0xa89fA9a0d46e47A5623c413e5F0b14D44d0B8c18",
+  "privateKey": "0x1dc77fb8ccaf5a4ca69e4a0449ebc119cd1f3d5a399ba1e8a1af654eee46863b"
+}
