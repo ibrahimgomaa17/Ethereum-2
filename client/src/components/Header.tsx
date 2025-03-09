@@ -3,7 +3,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Box, { BoxProps } from "@mui/material/Box";
 import { Link as RouterLink } from "react-router-dom";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 
 interface HeaderProps {
     token: string | null;
@@ -13,54 +12,102 @@ interface HeaderProps {
 
 const Header = ({ token, user, onLogout }: HeaderProps) => {
     return (
-        <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: 3 }}>
-            <Toolbar sx={{ justifyContent: "space-between", px: 3 }}>
-                {/* Logo/Brand */}
-                <Typography
-                    variant="h6"
-                    component={RouterLink}
-                    to="/"
-                    sx={{
-                        textDecoration: "none",
-                        color: "grey.700",
-                        fontWeight: 600,
-                        "&:hover": { color: "blue.300" },
-                    }}
-                >
-                    Blockchain Registry
-                </Typography>
+        <div className="flex flex-row justify-between items-center fixed top-5 w-screen px-10">
+            <Typography
+                variant="h6"
+                component={RouterLink}
+                to="/"
+                sx={{
+                    textDecoration: "none",
+                    color: "grey.700",
+                    fontWeight: 600,
+                    "&:hover": { color: "blue.300" },
+                }}
+            >
+                Blockchain Registry
+            </Typography>
 
-                {/* Navigation Links */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    {token ? (
-                        <>
-                            <Typography variant="body1" sx={{ color: "grey.300" }}>
-                                Welcome, <span style={{ fontWeight: 600 }}>{user?.userId}</span>
-                            </Typography>
-                            <Button
-                                onClick={onLogout}
-                                variant="plain"
-                                sx={{
-                                    bgcolor: "red.500",
-                                    "&:hover": { bgcolor: "red.600" },
-                                }}
-                            >
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <Button component={RouterLink} to="/login" color="primary"
-                            fullWidth
-                            variant="plain"
-                        >
-                            Login
+
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                {token ? (
+                    <>
+                        <Button component={RouterLink} to="/admin" color="neutral" variant="soft" startDecorator={<Dashboard />}>
+                            Go to Dashboard
                         </Button>
+                        <Button
+                            onClick={onLogout}
+                            variant="plain"
+                            sx={{
+                                bgcolor: "red.500",
+                                "&:hover": { bgcolor: "red.600" },
+                            }}
+                        >
+                            Logout
+                        </Button>
+                    </>
+                ) : (
+                    <Button component={RouterLink} to="/login" color="primary"
+                        fullWidth
+                        variant="plain"
+                    >
+                        Login
+                    </Button>
 
 
-                    )}
-                </Box>
-            </Toolbar>
-        </AppBar>
+                )}
+            </Box>
+
+
+        </div>
+        // <AppBar position="static" sx={{ bgcolor: "background.paper", boxShadow: 3 }}>
+        //     <Toolbar sx={{ justifyContent: "space-between", px: 3 }}>
+        //         {/* Logo/Brand */}
+        //         <Typography
+        //             variant="h6"
+        //             component={RouterLink}
+        //             to="/"
+        //             sx={{
+        //                 textDecoration: "none",
+        //                 color: "grey.700",
+        //                 fontWeight: 600,
+        //                 "&:hover": { color: "blue.300" },
+        //             }}
+        //         >
+        //             Blockchain Registry
+        //         </Typography>
+
+        //         {/* Navigation Links */}
+        //         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        //             {token ? (
+        //                 <>
+        //                     <Typography variant="body1" sx={{ color: "grey.300" }}>
+        //                         Welcome, <span style={{ fontWeight: 600 }}>{user?.userId}</span>
+        //                     </Typography>
+        //                     <Button
+        //                         onClick={onLogout}
+        //                         variant="plain"
+        //                         sx={{
+        //                             bgcolor: "red.500",
+        //                             "&:hover": { bgcolor: "red.600" },
+        //                         }}
+        //                     >
+        //                         Logout
+        //                     </Button>
+        //                 </>
+        //             ) : (
+        //                 <Button component={RouterLink} to="/login" color="primary"
+        //                     fullWidth
+        //                     variant="plain"
+        //                 >
+        //                     Login
+        //                 </Button>
+
+
+        //             )}
+        //         </Box>
+        //     </Toolbar>
+        // </AppBar>
     );
 };
 
@@ -68,6 +115,7 @@ export default Header;
 
 import { LinkProps } from "react-router-dom";
 import { Button } from "@mui/joy";
+import { Dashboard, Login } from "@mui/icons-material";
 
 type CombinedProps = Omit<BoxProps, 'color' | 'onAbort'> & Omit<LinkProps, 'color' | 'onAbort'>;
 
@@ -97,7 +145,7 @@ export function CustomIcon({ sx, ...props }: CustomIconProps) {
                 ...(Array.isArray(sx) ? sx : [sx]),
             ]}
         >
-            <DashboardRoundedIcon color="inherit" sx={{ fontSize: "1rem" }} />
+            {/* <DashboardRoundedIcon color="inherit" sx={{ fontSize: "1rem" }} /> */}
         </Box>
     );
 }

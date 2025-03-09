@@ -121,5 +121,29 @@
         ],
         "stateMutability": "view",
         "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getAllUsers",
+        "outputs": [
+            {
+                "internalType": "string[]",
+                "name": "userIds",
+                "type": "string[]"
+            },
+            {
+                "internalType": "address[]",
+                "name": "walletAddresses",
+                "type": "address[]"
+            },
+            {
+                "internalType": "bool[]",
+                "name": "isAdmins",
+                "type": "bool[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
     }
+    
 ]

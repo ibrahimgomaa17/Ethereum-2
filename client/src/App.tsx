@@ -37,7 +37,7 @@ function App() {
         {/* <Header token={token} user={user} onLogout={handleLogout} /> */}
         <main className="flex flex-row items-stretch justify-center min-h-screen bg-gray-100">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home token={token} user={user} onLogout={handleLogout} />} />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin" element={token && user?.userRole == 'Admin' ? <Dashboard token={token} user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} >

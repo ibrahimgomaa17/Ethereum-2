@@ -16,6 +16,7 @@ contract PropertyRegistry {
 
     mapping(string => Property) private properties;
     mapping(address => string[]) private ownerProperties;
+    string[] private allPropertyIds;
 
     event PropertyRegistered(string uniqueId, string name, address indexed owner);
     event OwnershipTransferred(string uniqueId, address indexed previousOwner, address indexed newOwner);
@@ -50,9 +51,9 @@ contract PropertyRegistry {
         newProperty.currentOwner = _owner;
         newProperty.lastTransferTime = block.timestamp;
         newProperty.transferredByAdmin = false;
-
         newProperty.ownershipHistory.push(_owner);
         ownerProperties[_owner].push(uniqueId);
+        allPropertyIds.push(uniqueId);
 
         emit PropertyRegistered(uniqueId, _name, _owner);
     }
@@ -134,6 +135,14 @@ contract PropertyRegistry {
 
     function getOwnershipHistory(string memory _uniqueId) public view propertyExists(_uniqueId) returns (address[] memory) {
         return properties[_uniqueId].ownershipHistory;
+    }
+
+    function getAllProperties() public view returns (Property[] memory) {
+        Property[] memory allProperties = new Property[](allPropertyIds.length);
+        for (uint i = 0; i < allPropertyIds.length; i++) {
+            allProperties[i] = properties[allPropertyIds[i]];
+        }
+        return allProperties;
     }
 
     function _removePropertyFromOwner(address _owner, string memory _uniqueId) private {
