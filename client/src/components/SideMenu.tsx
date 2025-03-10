@@ -7,15 +7,16 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import MenuContent from './MenuContent.tsx';
 import OptionsMenu from './OptionsMenu';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 
 interface HeaderProps {
     token: string | null;
     user: any;
     onLogout: () => void;
-  }
+}
 
-  
+
 const drawerWidth = 240;
 
 const Drawer = styled(MuiDrawer)({
@@ -28,7 +29,7 @@ const Drawer = styled(MuiDrawer)({
         boxSizing: 'border-box',
     },
 });
-const SideMenu = ({ token, user, onLogout }: HeaderProps) =>  {
+const SideMenu = ({ token, user, onLogout }: HeaderProps) => {
     return (
         <Drawer
             variant="permanent"
@@ -42,11 +43,14 @@ const SideMenu = ({ token, user, onLogout }: HeaderProps) =>  {
             <Box
                 sx={{
                     display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: '5px',
                     mt: 'calc(var(--template-frame-height, 0px) + 4px)',
                     p: 1.5,
                 }}
-            >
-                <Typography variant="h6" sx={{ fontWeight: 500 }}>
+            > <img src="image.png" className="h-10" />
+                <Typography sx={{ fontWeight: 500 }}>
                     Admin Section
                 </Typography>
             </Box>
@@ -73,19 +77,18 @@ const SideMenu = ({ token, user, onLogout }: HeaderProps) =>  {
             >
                 <Avatar
                     sizes="small"
-                    alt="Riley Carter"
+                    alt={user.userId.toUpperCase()}
                     src="/static/images/avatar/7.jpg"
                     sx={{ width: 36, height: 36 }}
                 />
                 <Box sx={{ mr: 'auto' }}>
                     <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-                        Riley Carter
+                        <span className='capitalize'>{user.userId}</span>
                     </Typography>
-                    {/* <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        riley@email.com
-                    </Typography> */}
                 </Box>
-                <OptionsMenu onLogout={onLogout}/>
+                <a className='cursor-pointer'>
+                <LogoutRoundedIcon onClick={onLogout} fontSize="small" />
+                </a>
             </Stack>
         </Drawer>
     );

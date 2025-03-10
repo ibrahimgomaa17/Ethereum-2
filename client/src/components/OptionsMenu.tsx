@@ -71,7 +71,6 @@ export default function OptionsMenu({ onLogout }: OptionsMenuProps) {
             },
           }}
         >
-          <ListItemText >Logout</ListItemText>
           <ListItemIcon>
             <LogoutRoundedIcon fontSize="small" />
           </ListItemIcon>

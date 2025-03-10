@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Table } from "@mui/joy";
+import { fetchUsers } from "../../services/admin";
 
 const UserManagement = () => {
   interface User {
@@ -12,19 +13,14 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:4000/admin/users");
-        const data = await response.json();
-        setUsers(data.users);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setLoading(false);
-      }
+    const loadUsers = async () => {
+      setLoading(true);
+      const userList = await fetchUsers();
+      setUsers(userList);
+      setLoading(false);
     };
 
-    fetchUsers();
+    loadUsers();
   }, []);
 
   return (

@@ -13,19 +13,19 @@ interface HeaderProps {
 const Header = ({ token, user, onLogout }: HeaderProps) => {
     return (
         <div className="flex flex-row justify-between items-center fixed top-5 w-screen px-10">
-            <Typography
-                variant="h6"
-                component={RouterLink}
-                to="/"
-                sx={{
-                    textDecoration: "none",
-                    color: "grey.700",
-                    fontWeight: 600,
-                    "&:hover": { color: "blue.300" },
-                }}
-            >
-                Blockchain Registry
-            </Typography>
+            <Box component={RouterLink}
+                    to="/" className="flex flex-row items-center gap-1">
+                <img src="image.png" className="h-10" />
+                <Typography
+                    sx={{
+                        color: "grey.700",
+                        fontWeight: 400,
+                        "&:hover": { color: "blue.300" },
+                    }}
+                >
+                    Blockchain Registry
+                </Typography>
+            </Box>
 
 
 
