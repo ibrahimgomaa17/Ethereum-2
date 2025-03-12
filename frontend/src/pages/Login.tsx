@@ -10,14 +10,46 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GalleryVerticalEnd } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
 
-export function Login({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+const Login = ({ onLogin }: { onLogin: (token: string, user: any) => void }) => {
+  const [userId, setUserId] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate(); // ✅ Import useNavigate for redirection
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, privateKey }),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        onLogin(data.token, data.user);
+        // ✅ Redirect based on user role
+        if (data.user.userRole === "Admin") {
+          navigate("/admin"); // Redirect to Admin Dashboard
+        } else {
+          navigate("/user"); // Redirect to User Dashboard
+        }
+      } else {
+        setError(data.error || "Invalid login credentials");
+      }
+    } catch (error) {
+      setError("Failed to connect to the server.");
+    }
+  };
+
   return (
-    <div className={cn("flex flex-col gap-6 min-h-screen justify-center pb-40", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 min-h-screen justify-center pb-40")}>
       <a href="#" className="flex items-center justify-center gap-2 font-medium">
         <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <GalleryVerticalEnd className="size-4" />
@@ -32,17 +64,17 @@ export function Login({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
             <div className="grid gap-6">
-              
+
               <div className="grid gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Username</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
+                    id="username"
+                    type="username"
                     required
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
                   />
                 </div>
                 <div className="grid gap-2">
@@ -54,9 +86,10 @@ export function Login({
                     >
                     </a>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input value={privateKey}
+                    onChange={(e) => setPrivateKey(e.target.value)} id="password" type="password" required />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button onClick={handleLogin} className="w-full">
                   Login
                 </Button>
               </div>
@@ -67,7 +100,6 @@ export function Login({
                 </Link>
               </div>
             </div>
-          </form>
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
@@ -77,3 +109,5 @@ export function Login({
     </div>
   )
 }
+
+export default Login;

@@ -6,9 +6,9 @@ import { useState } from "react";
 
 
 interface HeaderProps {
-  token: string | null;
-  user: any;
-  onLogout: () => void;
+  token?: string | any;
+  user?: any;
+  onLogout?: () => void;
 }
 
 
@@ -21,7 +21,7 @@ const Home = ({ token, user, onLogout }: HeaderProps) => {
 
   return (
     <>
-        <Header></Header>
+        <Header token={token} user={user} onLogout={onLogout}></Header>
 
       <div className="flex flex-col items-center justify-center h-full min-h-[40rem]">
         <h1 className="text-3xl font-semibold text-gray-800 mb-8">
