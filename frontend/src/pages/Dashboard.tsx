@@ -1,5 +1,5 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/ui/app-sidebar";
+import AppSidebar from "@/ui/app-sidebar";
 import { Outlet, NavLink } from "react-router-dom";
 interface HeaderProps {
   token: string | null;
@@ -11,7 +11,7 @@ interface HeaderProps {
 const Dashboard = ({ token, user, onLogout }: HeaderProps) => {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar user={user} onLogout={onLogout} />
       <SidebarInset>
         <Outlet /> {/* This renders the selected admin page */}
       </SidebarInset>

@@ -4,6 +4,7 @@ import { useLocation, NavLink } from "react-router-dom";
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -14,12 +15,13 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import { GalleryVerticalEnd } from "lucide-react";
+import { NavUser } from "./nav-user";
 
 // Navigation Data
 const data = {
     navMain: [
         {
-            title: "Getting Started",
+            title: "Admin Management",
             url: "admin",
             items: [
                 {
@@ -38,12 +40,16 @@ const data = {
         },
     ],
 };
+interface AppSidebarProps {
+    user: any;
+    onLogout: () => void;
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+const AppSidebar = ({ user, onLogout }: AppSidebarProps) => {
     const location = useLocation(); // ✅ Get current URL path
 
     return (
-        <Sidebar {...props}>
+        <Sidebar >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -87,7 +93,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarGroup>
                 ))}
             </SidebarContent>
+            <SidebarFooter>
+                <NavUser user={user} onLogout={onLogout} />
+            </SidebarFooter>
             <SidebarRail />
         </Sidebar>
     );
 }
+
+export default AppSidebar;

@@ -1,14 +1,9 @@
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/ui/app-sidebar";
 import { Separator } from "@radix-ui/react-separator";
 
-interface HeaderProps {
-  token?: string | any;
-  user?: any;
-  onLogout?: () => void;
-}
-const AdminDashboard = ({ token, user, onLogout }: HeaderProps) => {
+
+const AdminDashboard = () => {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
@@ -18,12 +13,12 @@ const AdminDashboard = ({ token, user, onLogout }: HeaderProps) => {
           <BreadcrumbList>
             <BreadcrumbItem className="hidden md:block">
               <BreadcrumbLink href="#">
-                Building Your Application
+                Admin Section
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+              <BreadcrumbPage>Dashboard</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
