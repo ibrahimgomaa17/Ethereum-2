@@ -1,15 +1,45 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-export const registerUser = async (userId: string) => {
-    const response = await fetch(BASE_URL + "/user/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-    });
+import { useFetchInterceptor } from "./http";
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to register user');
-    }
+export const useAuth = () => {
+    const { http } = useFetchInterceptor();
 
-    return response.json();
+    const loginUser = async (userId: string, privateKey: string) => {
+        try {
+            const response = await http("/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId, privateKey }),
+                credentials: "include",
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Invalid login credentials");
+            }
+
+            return data;
+        } catch (error) {
+            throw new Error("Failed to connect to the server.");
+        }
+    };
+
+    const registerUser = async (userId: string) => {
+        const response = await http("/user/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to register user');
+        }
+
+        return response.json();
+    };
+
+    return { loginUser, registerUser };
 };

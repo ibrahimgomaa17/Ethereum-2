@@ -20,7 +20,12 @@ export function Header({ token, user, onLogout }: HeaderProps) {
             </Link>
 
             {token && user ? (
-                <Button variant="outline" onClick={onLogout}>Logout</Button>
+                <div className="flex flex-row items-center gap-2">
+                    <Link to="/admin">
+                        <Button variant="outline">Dashboard</Button>
+                    </Link>
+                    <Button variant="outline" onClick={onLogout}>Logout</Button>
+                </div>
             ) : (
                 <Link to="/login">
                     <Button variant="outline">Login</Button>
