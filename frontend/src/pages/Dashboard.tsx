@@ -12,7 +12,7 @@ const Dashboard = ({ token, user, onLogout }: HeaderProps) => {
   return (
     <SidebarProvider>
       <AppSidebar user={user} onLogout={onLogout} />
-      <SidebarInset>
+      <SidebarInset className="w-[calc(100%-18rem)]">
         <Outlet /> {/* This renders the selected admin page */}
       </SidebarInset>
     </SidebarProvider>

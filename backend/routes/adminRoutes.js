@@ -60,12 +60,26 @@ router.post("/remove", async (req, res) => {
 // ✅ Fetch All Properties
 router.get("/properties", async (req, res) => {
     try {
-        const properties = await propertyRegistry.getAllProperties();
+        const propertiesRaw = await propertyRegistry.getAllProperties();
+
+        const properties = propertiesRaw.map(prop => ({
+            uniqueId: prop.uniqueId,
+            name: prop.name,
+            propertyType: prop.propertyType,
+            serialNumber: prop.serialNumber,
+            location: prop.location,
+            currentOwner: prop.currentOwner,
+            transferredByAdmin: prop.transferredByAdmin,
+            lastTransferTime: Number(prop.lastTransferTime) * 1000 // Convert BigInt to number (timestamp in milliseconds)
+        }));
+
         res.json({ properties });
     } catch (error) {
+        console.error('Error fetching properties:', error);
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // ✅ Fetch All Users
 router.get("/users", async (req, res) => {

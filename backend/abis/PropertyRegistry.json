@@ -1,31 +1,11 @@
 [
     {
         "inputs": [
-            {
-                "internalType": "string",
-                "name": "_name",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "_propertyType",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "_serialNumber",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "_location",
-                "type": "string"
-            },
-            {
-                "internalType": "address",
-                "name": "_owner",
-                "type": "address"
-            }
+            { "internalType": "string", "name": "_name", "type": "string" },
+            { "internalType": "string", "name": "_propertyType", "type": "string" },
+            { "internalType": "string", "name": "_serialNumber", "type": "string" },
+            { "internalType": "string", "name": "_location", "type": "string" },
+            { "internalType": "address", "name": "_owner", "type": "address" }
         ],
         "name": "registerProperty",
         "outputs": [],
@@ -34,75 +14,27 @@
     },
     {
         "inputs": [
-            {
-                "internalType": "string",
-                "name": "_uniqueId",
-                "type": "string"
-            }
+            { "internalType": "string", "name": "_uniqueId", "type": "string" }
         ],
         "name": "getProperty",
         "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            },
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+            { "internalType": "string", "name": "uniqueId", "type": "string" },
+            { "internalType": "string", "name": "name", "type": "string" },
+            { "internalType": "string", "name": "propertyType", "type": "string" },
+            { "internalType": "string", "name": "serialNumber", "type": "string" },
+            { "internalType": "string", "name": "location", "type": "string" },
+            { "internalType": "address", "name": "currentOwner", "type": "address" },
+            { "internalType": "bool", "name": "transferredByAdmin", "type": "bool" },
+            { "internalType": "uint256", "name": "lastTransferTime", "type": "uint256" }
         ],
         "stateMutability": "view",
         "type": "function"
     },
     {
         "inputs": [
-            {
-                "internalType": "string",
-                "name": "_uniqueId",
-                "type": "string"
-            },
-            {
-                "internalType": "address",
-                "name": "_newOwner",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "_byAdmin",
-                "type": "bool"
-            }
+            { "internalType": "string", "name": "_uniqueId", "type": "string" },
+            { "internalType": "address", "name": "_newOwner", "type": "address" },
+            { "internalType": "bool", "name": "_byAdmin", "type": "bool" }
         ],
         "name": "transferProperty",
         "outputs": [],
@@ -114,44 +46,20 @@
         "name": "getAllProperties",
         "outputs": [
             {
-                "internalType": "string[]",
-                "name": "uniqueIds",
-                "type": "string[]"
-            },
-            {
-                "internalType": "string[]",
-                "name": "names",
-                "type": "string[]"
-            },
-            {
-                "internalType": "string[]",
-                "name": "propertyTypes",
-                "type": "string[]"
-            },
-            {
-                "internalType": "string[]",
-                "name": "serialNumbers",
-                "type": "string[]"
-            },
-            {
-                "internalType": "string[]",
-                "name": "locations",
-                "type": "string[]"
-            },
-            {
-                "internalType": "address[]",
-                "name": "currentOwners",
-                "type": "address[]"
-            },
-            {
-                "internalType": "bool[]",
-                "name": "transferredByAdmins",
-                "type": "bool[]"
-            },
-            {
-                "internalType": "uint256[]",
-                "name": "lastTransferTimes",
-                "type": "uint256[]"
+                "components": [
+                    { "internalType": "string", "name": "uniqueId", "type": "string" },
+                    { "internalType": "string", "name": "name", "type": "string" },
+                    { "internalType": "string", "name": "propertyType", "type": "string" },
+                    { "internalType": "string", "name": "serialNumber", "type": "string" },
+                    { "internalType": "string", "name": "location", "type": "string" },
+                    { "internalType": "address", "name": "currentOwner", "type": "address" },
+                    { "internalType": "address[]", "name": "ownershipHistory", "type": "address[]" },
+                    { "internalType": "uint256", "name": "lastTransferTime", "type": "uint256" },
+                    { "internalType": "bool", "name": "transferredByAdmin", "type": "bool" }
+                ],
+                "internalType": "struct PropertyRegistry.Property[]",
+                "name": "",
+                "type": "tuple[]"
             }
         ],
         "stateMutability": "view",

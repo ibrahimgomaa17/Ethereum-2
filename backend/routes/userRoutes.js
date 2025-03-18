@@ -8,6 +8,9 @@ const userRegistry = new ethers.Contract(process.env.USER_REGISTRY_ADDRESS, user
 
 // ✅ Register User (User's Own Wallet Signs Transaction)
 router.post("/register", async (req, res) => {
+    try {
+        
+  
     const { userId } = req.body;
 
     // 1. Create new wallet (represents the user)
@@ -36,6 +39,9 @@ router.post("/register", async (req, res) => {
         walletAddress: wallet.address,
         privateKey: wallet.privateKey // ⚠️ IMPORTANT: Tell user to save this securely!
     });
+} catch (error) {
+        res.status(404).json({error:error.reason})
+}
 });
 
 module.exports = router;

@@ -13,10 +13,9 @@ export const useAuth = () => {
                 body: JSON.stringify({ userId, privateKey }),
                 credentials: "include",
             });
+            const data = response;
 
-            const data = await response.json();
-
-            if (!response.ok) {
+            if (!response.token) {
                 throw new Error(data.error || "Invalid login credentials");
             }
 

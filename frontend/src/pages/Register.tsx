@@ -29,7 +29,7 @@ const RegistrationForm = () => {
       await registerUser(userId); // Use the service here
       toast("User registered successfully!");
     } catch (err: any) {
-      setError(err.message || "Failed to register user");
+      toast(err.message);
     }
   };
 

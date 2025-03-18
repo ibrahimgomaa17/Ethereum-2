@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
-import { useUsers } from "../../services/admin";
+import { useAdmin, User } from "../../services/admin";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
 import { SearchForm } from "@/components/search-form";
-interface User {
-  userId: string;
-  walletAddress: string;
-  isAdmin: boolean;
-}
 
 const UserManagement = () => {
-  const { fetchUsers } = useUsers();
+  const { fetchUsers } = useAdmin();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
