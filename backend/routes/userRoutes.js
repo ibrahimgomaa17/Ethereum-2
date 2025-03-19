@@ -9,39 +9,69 @@ const userRegistry = new ethers.Contract(process.env.USER_REGISTRY_ADDRESS, user
 // ✅ Register User (User's Own Wallet Signs Transaction)
 router.post("/register", async (req, res) => {
     try {
-        
+      const { userId } = req.body;
   
-    const { userId } = req.body;
-
-    // 1. Create new wallet (represents the user)
-    const wallet = ethers.Wallet.createRandom();
-
-    // OPTIONAL: Fund the wallet if necessary (PoA might cover gas for free — check your chain rules)
-    const funder = new ethers.Wallet(process.env.POA_ADMIN_PRIVATE_KEY, provider);
-    const fundTx = await funder.sendTransaction({
-        to: wallet.address,
-        value: ethers.parseEther("0.01") // Adjust if needed
-    });
-    await fundTx.wait();
-
-    // 2. User wallet connects to the contract
-    const walletWithProvider = wallet.connect(provider);
-    const contractWithUser = userRegistry.connect(walletWithProvider);
-
-    // 3. Register user (user wallet signs this)
-    const tx = await contractWithUser.registerUser(userId);
-    await tx.wait();
-
-    // 4. Respond to client with wallet details
-    res.json({
+      if (!userId || !userId.trim()) {
+        console.warn("Attempted registration without User ID");
+        return res.status(400).json({ error: "User ID is required." });
+      }
+  
+      // Check if the user ID already exists in the contract
+      const contract = userRegistry.connect(provider);
+  
+      try {
+        const existingUser = await contract.getUserById(userId);
+        if (existingUser[1] !== ethers.ZeroAddress) {
+          return res.status(400).json({ error: "User ID already exists. Please choose another one." });
+        }
+      } catch (error) {
+        if (error.reason !== "Error: User not found.") {
+          console.error("Error checking user existence:", error);
+          return res.status(500).json({ error: "Failed to verify user existence." });
+        }
+      }
+  
+      // Create a new wallet for the user
+      const wallet = ethers.Wallet.createRandom();
+      const walletAddress = wallet.address;
+      const privateKey = wallet.privateKey;
+  
+      // Fund the wallet
+      const funder = new ethers.Wallet(process.env.POA_ADMIN_PRIVATE_KEY, provider);
+      const fundTx = await funder.sendTransaction({
+        to: walletAddress,
+        value: ethers.parseEther("0.01"),
+      });
+  
+      await fundTx.wait();
+  
+      // Connect wallet to contract
+      const walletWithProvider = wallet.connect(provider);
+      const contractWithUser = userRegistry.connect(walletWithProvider);
+  
+      // Register user on the blockchain
+      const tx = await contractWithUser.registerUser(userId);
+      await tx.wait();
+  
+      console.log(`User "${userId}" registered successfully with wallet address ${walletAddress}`);
+  
+      res.status(201).json({
         message: "User registered successfully. User must save this wallet information!",
         userId,
-        walletAddress: wallet.address,
-        privateKey: wallet.privateKey // ⚠️ IMPORTANT: Tell user to save this securely!
-    });
-} catch (error) {
-        res.status(404).json({error:error.reason})
-}
-});
+        walletAddress,
+        privateKey,
+      });
+  
+    } catch (error) {
+      console.error("Error during registration:", error);
+  
+      if (error.code === 'CALL_EXCEPTION' && error.reason) {
+        res.status(400).json({ error: error.reason });
+      } else {
+        res.status(500).json({ error: error.message || "Internal server error" });
+      }
+    }
+  });
+  
 
 module.exports = router;

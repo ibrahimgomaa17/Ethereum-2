@@ -14,7 +14,17 @@ export interface Asset {
   serialNumber: string;
   location: string;
   currentOwner: string;
+  adminPrivateKey:string
 }
+export interface CreateAsset {
+  adminPrivateKey: string;
+  name: string;
+  propertyType: string;
+  serialNumber: string;
+  location: string;
+  owner: string;
+}
+
 
 
 export const useAdmin = () => {
@@ -39,6 +49,26 @@ export const useAdmin = () => {
       return [];
     }
   };
+  const registerAsset = async (asset: CreateAsset): Promise<{ message?: string; error?: string }> => {
+    try {
+      const response = await http("/property/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(asset),
+      });
+  
+      if (response.message) {
+        console.log("Asset registered successfully:", response.message);
+      }
+  
+      return response;
+    } catch (error: any) {
+      console.error("Error creating asset:", error);
+      return { error: error.message || "Unexpected error occurred" };
+    }
+  };
+  
+  
 
-  return { fetchUsers, fetchAssets };
+  return { fetchUsers, fetchAssets, registerAsset };
 };

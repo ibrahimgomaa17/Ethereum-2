@@ -1,14 +1,17 @@
 import { SearchForm } from "@/components/search-form";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose, Drawer } from "@/components/ui/drawer";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
-import { useAdmin, Asset } from "@/services/admin";
+import { useAdmin, Asset, User } from "@/services/admin";
 import { Separator } from "@radix-ui/react-separator";
 import { useState, useEffect } from "react";
+import { CreateAssetDrawer } from "./CreateAssetDrawer";
+import { Button } from "@/components/ui/button";
+interface AssetManagementProps {
+  user: User; // Replace `any` with the appropriate type for `user` if available
+}
 
-const AssetManagement = () => {
+function AssetManagement({ user }: AssetManagementProps) {
   const { fetchAssets } = useAdmin();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,7 +25,7 @@ const AssetManagement = () => {
     const loadAssets = async () => {
       setLoading(true);
       const assetList: Asset[] = await fetchAssets();
-      setAssets(assetList?.filter(asset => asset.name.toLowerCase().includes(search.toLowerCase())));
+      setAssets(assetList?.filter(asset => JSON.stringify(asset).toLowerCase().includes(search.toLowerCase())));
       setLoading(false);
     };
 
@@ -49,21 +52,8 @@ const AssetManagement = () => {
         </div>
         <div className="flex flex-row w-full justify-end">
           <SearchForm searchQuery={searchQuery} className="sm:ml-auto sm:w-auto" />
-          <Drawer  direction="right">
-            <DrawerTrigger>Open</DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader>
-                    <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                    <DrawerDescription>This action cannot be undone.</DrawerDescription>
-                </DrawerHeader>
-                <DrawerFooter>
-                    <Button>Submit</Button>
-                    <DrawerClose>
-                        <Button variant="outline">Cancel</Button>
-                    </DrawerClose>
-                </DrawerFooter>
-            </DrawerContent>
-        </Drawer>
+          <CreateAssetDrawer user={user}></CreateAssetDrawer>
+
         </div>
       </header>
 
@@ -82,12 +72,13 @@ const AssetManagement = () => {
                 <TableHead>Location</TableHead>
                 <TableHead>Owner Address</TableHead>
                 <TableHead>Transferred by Admin</TableHead>
-                <TableHead>Last Transfer Time</TableHead>
+                <TableHead>Last Modification</TableHead>
+                <TableHead>History</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {assets.map(asset => (
-                <TableRow key={asset.uniqueId}>
+                <TableRow key={asset.uniqueId} className="group">
                   <TableCell>{asset.uniqueId}</TableCell>
                   <TableCell>{asset.name}</TableCell>
                   <TableCell>{asset.propertyType}</TableCell>
@@ -96,6 +87,7 @@ const AssetManagement = () => {
                   <TableCell>{asset.currentOwner}</TableCell>
                   <TableCell className="text-center">{asset.transferredByAdmin ? 'Yes' : 'No'}</TableCell>
                   <TableCell>{new Date(asset.lastTransferTime).toLocaleString()}</TableCell>
+                  <TableCell className="opacity-0 group-hover:opacity-100 "><Button size='sm' className="text-[.8rem]">Asset History</Button></TableCell>
                 </TableRow>
               ))}
             </TableBody>

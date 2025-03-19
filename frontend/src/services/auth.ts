@@ -25,20 +25,26 @@ export const useAuth = () => {
         }
     };
 
-    const registerUser = async (userId: string) => {
-        const response = await http("/user/register", {
+    const registerUser = async (userId: string): Promise<{ userId: string; walletAddress: string; privateKey: string; message?: string; error?: string } | any> => {
+        try {
+          const response = await http("/user/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to register user');
+          });
+      
+          if (response.error) {
+            throw new Error(response.error);
+          }
+      
+          console.log("Registration successful:", response.message);
+          return response;
+        } catch (error: any) {
+          console.error("Registration failed:", error);
+          return { error: error.message };
         }
-
-        return response.json();
-    };
+      };
+      
 
     return { loginUser, registerUser };
 };

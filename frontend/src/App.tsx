@@ -71,7 +71,7 @@ function AppContent({
             >
               <Route path="" element={<AdminDashboard />} />
               <Route path="users" element={<UserManagement />} />
-              <Route path="asset-management" element={<AssetManagement />} />
+              <Route path="asset-management" element={<AssetManagement user={user}   />} />
             </Route>
           </Routes>
         </main>
