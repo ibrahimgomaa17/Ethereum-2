@@ -5,13 +5,12 @@ import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@
 import { useAdmin, Asset, User } from "@/services/admin";
 import { Separator } from "@radix-ui/react-separator";
 import { useState, useEffect } from "react";
-import { CreateAssetDrawer } from "./CreateAssetDrawer";
 import { Button } from "@/components/ui/button";
 interface AssetManagementProps {
   user: User; // Replace `any` with the appropriate type for `user` if available
 }
 
-function AssetManagement({ user }: AssetManagementProps) {
+function AssetList({ user }: AssetManagementProps) {
   const { fetchAssets } = useAdmin();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,13 +56,12 @@ function AssetManagement({ user }: AssetManagementProps) {
         </div>
         <div className="flex flex-row w-full justify-end">
           <SearchForm searchQuery={searchQuery} className="sm:ml-auto sm:w-auto" />
-          <CreateAssetDrawer createAsset={createAsset} user={user}></CreateAssetDrawer>
 
         </div>
       </header>
       <div className="flex flex-col gap-4 p-4">
         <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
-          <div className="p-4 overflow-x-scroll block  pb-4">
+          {/* <div className="p-4 overflow-x-scroll block  pb-4">
             {loading ? (
               <div>Loading assets...</div>
             ) : (
@@ -99,11 +97,11 @@ function AssetManagement({ user }: AssetManagementProps) {
                 </TableBody>
               </Table>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </>
   );
 };
 
-export default AssetManagement;
+export default AssetList;

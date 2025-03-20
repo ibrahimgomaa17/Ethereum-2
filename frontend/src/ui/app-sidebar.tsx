@@ -18,34 +18,14 @@ import { GalleryVerticalEnd } from "lucide-react";
 import { NavUser } from "./nav-user";
 
 // Navigation Data
-const data = {
-    navMain: [
-        {
-            title: "Admin Management",
-            url: "admin",
-            items: [
-                {
-                    title: "Dashboard",
-                    url: "admin", // ✅ Set Dashboard to "admin"
-                },
-                {
-                    title: "Users",
-                    url: "admin/users",
-                },
-                {
-                    title: "Assets",
-                    url: "admin/asset-management",
-                }
-            ],
-        },
-    ],
-};
+
 interface AppSidebarProps {
     user: any;
     onLogout: () => void;
+    navLinks:any[]
 }
 
-const AppSidebar = ({ user, onLogout }: AppSidebarProps) => {
+const AppSidebar = ({ user, onLogout, navLinks }: AppSidebarProps) => {
     const location = useLocation(); // ✅ Get current URL path
 
     return (
@@ -67,7 +47,7 @@ const AppSidebar = ({ user, onLogout }: AppSidebarProps) => {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                {data.navMain.map((group) => (
+                {navLinks.map((group) => (
                     <SidebarGroup key={group.title}>
                         <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
                         <SidebarGroupContent>

@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import AssetManagement from "./pages/admin/AssetManagement";
 import { LoaderComponent } from "./ui/loader";
+import AssetList from "./pages/user/AssetList";
+import UserDashboard from "./pages/user/UserDashboard";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
@@ -65,13 +67,14 @@ function AppContent({
             <Route path="/" element={<Home token={token} user={user} onLogout={onLogout} />} />
             <Route path="/login" element={<Login onLogin={onLogin} />} />
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/admin"
-              element={token && user?.userRole === "Admin" ? <Dashboard token={token} user={user} onLogout={onLogout} /> : <Navigate to="/login" />}
-            >
+            <Route path="/admin" element={token && user?.userRole === "Admin" ? <Dashboard token={token} user={user} onLogout={onLogout} /> : <Navigate to="/login" />} >
               <Route path="" element={<AdminDashboard />} />
               <Route path="users" element={<UserManagement />} />
-              <Route path="asset-management" element={<AssetManagement user={user}   />} />
+              <Route path="asset-management" element={<AssetManagement user={user} />} />
+            </Route>
+            <Route path="/user" element={token && user?.userRole != "Admin" ? <Dashboard token={token} user={user} onLogout={onLogout} /> : <Navigate to="/login" />} >
+              <Route path="" element={<UserDashboard />} />
+              <Route path="assets" element={<AssetList user={user} />} />
             </Route>
           </Routes>
         </main>
