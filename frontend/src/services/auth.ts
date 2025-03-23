@@ -14,7 +14,7 @@ export const useAuth = () => {
                 credentials: "include",
             });
             const data = response;
-
+debugger
             if (!response.token) {
                 throw new Error(data.error || "Invalid login credentials");
             }
@@ -26,6 +26,7 @@ export const useAuth = () => {
     };
 
     const registerUser = async (userId: string): Promise<{ userId: string; walletAddress: string; privateKey: string; message?: string; error?: string } | any> => {
+      debugger
         try {
           const response = await http("/user/register", {
             method: "POST",

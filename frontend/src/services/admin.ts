@@ -3,7 +3,7 @@ import { useFetchInterceptor } from "./http";
 export interface User {
   userId: string;
   walletAddress: string;
-  isAdmin: boolean;
+  userRole: string;
 }
 export interface Asset {
   lastTransferTime: string | number | Date;

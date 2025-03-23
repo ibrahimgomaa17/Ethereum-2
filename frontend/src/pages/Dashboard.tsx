@@ -49,7 +49,7 @@ const userLinks = [
 const Dashboard = ({ token, user, onLogout }: HeaderProps) => {
   return (
     <SidebarProvider>
-      <AppSidebar user={user} onLogout={onLogout} navLinks={user.isAdmin? adminLinks:userLinks} />
+      <AppSidebar user={user} onLogout={onLogout} navLinks={user.userRole == 'Admin'? adminLinks:userLinks} />
       <SidebarInset className="w-[calc(100%-18rem)]">
         <Outlet /> {/* This renders the selected admin page */}
       </SidebarInset>

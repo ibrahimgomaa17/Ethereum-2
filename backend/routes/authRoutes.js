@@ -16,7 +16,9 @@ router.post("/login", async (req, res) => {
         const { userId, privateKey } = req.body;
 
         // 🔹 1. Check if the user exists in the blockchain
+        console.log(userId);
         const userData = await userRegistry.getUserById(userId);
+        
 
         if (!userData || userData[1] === ethers.AddressZero) {
             return res.status(401).json({ error: "❌ User not found in blockchain" });
