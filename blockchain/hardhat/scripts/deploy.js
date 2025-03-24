@@ -23,11 +23,14 @@ async function main() {
 
     console.log("🎉 Deployment completed successfully!");
 
-    // 🔹 Save contract addresses to a file
+    // 🔹 Save contract addresses
     saveContractAddresses(userRegistryAddress, propertyRegistryAddress);
 
-    // 🔹 Update the .env file with the new contract addresses
+    // 🔹 Update environment variables
     updateEnvFile(userRegistryAddress, propertyRegistryAddress);
+
+    // 🔹 Copy ABI files to backend
+    copyAbisToBackend();
 }
 
 // ✅ Save deployed contract addresses to `deployed.json`
@@ -48,12 +51,11 @@ function saveContractAddresses(userRegistryAddress, propertyRegistryAddress) {
 
 // ✅ Update `.env` file with new contract addresses
 function updateEnvFile(userRegistryAddress, propertyRegistryAddress) {
-    const envPath = path.join("/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/backend", ".env");
+    const envPath = path.join("../../backend", ".env");
 
     try {
         let envContent = fs.readFileSync(envPath, "utf-8");
 
-        // Replace old addresses with new ones
         envContent = envContent.replace(
             /USER_REGISTRY_ADDRESS=0x[a-fA-F0-9]{40}/,
             `USER_REGISTRY_ADDRESS=${userRegistryAddress}`
@@ -63,12 +65,33 @@ function updateEnvFile(userRegistryAddress, propertyRegistryAddress) {
             `PROPERTY_REGISTRY_ADDRESS=${propertyRegistryAddress}`
         );
 
-        // Save updated .env file
         fs.writeFileSync(envPath, envContent);
         console.log("✅ Updated `.env` file with new contract addresses!");
     } catch (error) {
         console.error("❌ Failed to update `.env` file:", error);
     }
+}
+
+// ✅ Copy compiled ABIs to backend/abi
+function copyAbisToBackend() {
+    const contracts = ["UserRegistry", "PropertyRegistry"];
+    const abiOutputDir = path.join(__dirname, "../../../backend/src/contracts");
+
+    if (!fs.existsSync(abiOutputDir)) {
+        fs.mkdirSync(abiOutputDir, { recursive: true });
+    }
+
+    contracts.forEach((name) => {
+        const artifactPath = path.join(__dirname, `../artifacts/contracts/${name}.sol/${name}.json`);
+        const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+        const abi = artifact.abi;
+
+        fs.writeFileSync(
+            path.join(abiOutputDir, `${name}.json`),
+            JSON.stringify(abi, null, 2)
+        );
+        console.log(`✅ Copied ABI for ${name} to backend/src/contracts`);
+    });
 }
 
 // ✅ Execute the script
