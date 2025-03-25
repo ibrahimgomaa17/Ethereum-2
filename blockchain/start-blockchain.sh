@@ -35,8 +35,7 @@ osascript -e "tell application \"Terminal\" to do script \"geth attach --preload
 echo "🚀 Starting backend server with Nodemon..."
 (
     cd "$PROJECT_ROOT/backend" || exit
-    npm install  # Ensure dependencies are installed
-    nodemon server.js &
+    nest start &
 )
 
 BACKEND_PID=$!

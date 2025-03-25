@@ -1,0 +1,22 @@
+[
+  {
+    "userId": "bob",
+    "walletAddress": "0x231Bc0e8C2529848ED8D1CB4DcCA9352340b3256",
+    "privateKey": "0xfedf367797c3c41d7ab49a931e714c4af79c2fe6cfbb0a3d2abdd33c932d9297"
+  },
+  {
+    "userId": "charlie",
+    "walletAddress": "0x6cA2DcF25Fc57CB0Ba4c026cd584AE400C3614f4",
+    "privateKey": "0x7615e0b88821fa6c7fbde8d5071fa5dde26140ed0d78cb29c398f381d65b5cf5"
+  },
+  {
+    "userId": "diana",
+    "walletAddress": "0x05b3aa1697eADe48b0cEf9ABdB3a70F1046A66FE",
+    "privateKey": "0xb733034392832bb389bfb120ba5749dd55713756497043708854b5be9ce1155e"
+  },
+  {
+    "userId": "eve",
+    "walletAddress": "0x75FaeD0E9F8Db788987F7F6750BF39C488b7ED6f",
+    "privateKey": "0x96d9173cb64af92f5a77c5bc23297b23ab9c5b6a4ad753317a5aab5467842181"
+  }
+]

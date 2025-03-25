@@ -69,6 +69,8 @@ export class AdminService {
 
   async getAllUsers() {
     const [userIds, walletAddresses, isAdmins] = await this.userRegistry.getAllUsers();
+    console.log(userIds);
+    
     return {
       users: userIds.map((id, index) => ({
         userId: id,

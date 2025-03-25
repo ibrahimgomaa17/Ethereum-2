@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ethers } from 'ethers';
+import { ethers, ZeroAddress } from 'ethers';
 import userRegistryABI from '../contracts/UserRegistry.json';
 import { RegisterUserDto } from './dto/register-user.dto';
 
@@ -21,25 +21,14 @@ export class UserService {
     this.userRegistry = new ethers.Contract(contractAddress, userRegistryABI, this.provider);
   }
 
+
   async registerUser({ userId }: RegisterUserDto) {
     if (!userId || !userId.trim()) {
       throw new Error('User ID is required.');
     }
 
-    // 🔍 Check if user already exists
-    let existing;
-    try {
-      existing = await this.userRegistry.getUserById(userId);
-    } catch (error: any) {
-      // If error message contains 'User not found', assume it's a new user
-      if (error.reason?.includes('User not found')) {
-        existing = null;
-      } else {
-        throw error;
-      }
-    }
-    
-    if (existing && existing[1] !== ethers.ZeroAddress) {
+    const exists = await this.userRegistry.userExists(userId);
+    if (exists) {
       throw new Error('User ID already exists.');
     }
 
@@ -60,7 +49,7 @@ export class UserService {
     // 📝 Register user on-chain
     const walletWithProvider = wallet.connect(this.provider);
     const contractWithUser = this.userRegistry.connect(walletWithProvider);
-    const tx = await (contractWithUser   as any).registerUser(userId);
+    const tx = await (contractWithUser as any).registerUser(userId);
     await tx.wait();
 
     return {
@@ -70,4 +59,6 @@ export class UserService {
       privateKey,
     };
   }
+
+
 }

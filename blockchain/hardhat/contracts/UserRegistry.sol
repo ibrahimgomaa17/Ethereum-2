@@ -97,6 +97,9 @@ contract UserRegistry {
         User memory user = users[_userId];
         return (user.userId, user.walletAddress, user.isAdmin);
     }
+    function userExists(string memory _userId) public view returns (bool) {
+    return users[_userId].walletAddress != address(0);
+}
 
     function getUserIdByAddress(
         address _walletAddress
