@@ -6,6 +6,7 @@ import propertyRegistryABI from '../contracts/PropertyRegistry.json';
 import { AddAdminDto } from './dto/add-admin.dto';
 import { RemoveAdminDto } from './dto/remove-admin.dto';
 import { MakePoaAdminDto } from './dto/make-poa-admin.dto';
+import { getKeystoreWallets, getLocalUsers } from 'src/utils/file-storage.util';
 
 @Injectable()
 export class AdminService {
@@ -67,16 +68,31 @@ export class AdminService {
     };
   }
 
+
   async getAllUsers() {
-    const [userIds, walletAddresses, isAdmins] = await this.userRegistry.getAllUsers();
-    console.log(userIds);
-    
-    return {
-      users: userIds.map((id, index) => ({
-        userId: id,
-        walletAddress: walletAddresses[index],
-        isAdmin: isAdmins[index],
-      })),
-    };
+    try {
+      const [userIds, walletAddresses, isAdmins] = await this.userRegistry.getAllUsers();
+  
+      const localUsers = getLocalUsers();
+      const keystoreWallets = getKeystoreWallets();
+  
+      const users = userIds.map((userId, index) => {
+        const walletAddress = walletAddresses[index].toLowerCase();
+        const localUser = localUsers.find(u => u.walletAddress.toLowerCase() === walletAddress);
+        const keystore = keystoreWallets.find(k => k.address === walletAddress);
+  
+        return {
+          userId,
+          walletAddress,
+          isAdmin: isAdmins[index],
+        };
+      });
+  
+      return { users };
+    } catch (error) {
+      console.error('❌ Failed to fetch users:', error);
+      return { users: [] };
+    }
   }
+  
 }

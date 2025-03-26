@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ethers, ZeroAddress } from 'ethers';
 import userRegistryABI from '../contracts/UserRegistry.json';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { getLocalUsers, overwriteLocalUsers } from 'src/utils/file-storage.util';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,8 @@ export class UserService {
 
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
     this.userRegistry = new ethers.Contract(contractAddress, userRegistryABI, this.provider);
+    this.validateLocalUsers();
+
   }
 
 
@@ -51,7 +54,7 @@ export class UserService {
     const contractWithUser = this.userRegistry.connect(walletWithProvider);
     const tx = await (contractWithUser as any).registerUser(userId);
     await tx.wait();
-
+    saveLocalUser({ userId, walletAddress, privateKey });
     return {
       message: '✅ User registered successfully. Save this wallet info!',
       userId,
@@ -60,5 +63,26 @@ export class UserService {
     };
   }
 
+  async validateLocalUsers() {
+    const localUsers = getLocalUsers();
+    const validUsers = [];
+
+    for (const user of localUsers) {
+      const exists = await this.userRegistry.userExists(user.userId);
+      if (exists) validUsers.push(user);
+    }
+
+    overwriteLocalUsers(validUsers);
+
+    return {
+      removed: localUsers.length - validUsers.length,
+      remaining: validUsers.length,
+      users: validUsers,
+    };
+  }
 
 }
+function saveLocalUser(arg0: { userId: string; walletAddress: string; privateKey: string; }) {
+  throw new Error('Function not implemented.');
+}
+
