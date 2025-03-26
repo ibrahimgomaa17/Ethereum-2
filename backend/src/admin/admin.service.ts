@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
-import  userRegistryABI from '../contracts/UserRegistry.json';
+import userRegistryABI from '../contracts/UserRegistry.json';
 import propertyRegistryABI from '../contracts/PropertyRegistry.json';
 import { AddAdminDto } from './dto/add-admin.dto';
 import { RemoveAdminDto } from './dto/remove-admin.dto';
@@ -72,27 +72,28 @@ export class AdminService {
   async getAllUsers() {
     try {
       const [userIds, walletAddresses, isAdmins] = await this.userRegistry.getAllUsers();
-  
+      
       const localUsers = getLocalUsers();
+      console.log(localUsers);
       const keystoreWallets = getKeystoreWallets();
-  
+
       const users = userIds.map((userId, index) => {
         const walletAddress = walletAddresses[index].toLowerCase();
         const localUser = localUsers.find(u => u.walletAddress.toLowerCase() === walletAddress);
         const keystore = keystoreWallets.find(k => k.address === walletAddress);
-  
+
         return {
           userId,
           walletAddress,
           isAdmin: isAdmins[index],
         };
       });
-  
+
       return { users };
     } catch (error) {
       console.error('❌ Failed to fetch users:', error);
       return { users: [] };
     }
   }
-  
+
 }
