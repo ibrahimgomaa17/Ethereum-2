@@ -1,60 +1,62 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ethers, ZeroAddress } from 'ethers';
+import { ethers } from 'ethers';
 import userRegistryABI from '../contracts/UserRegistry.json';
+import propertyRegistryABI from '../contracts/PropertyRegistry.json';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { getLocalUsers, overwriteLocalUsers, saveLocalUser } from 'src/utils/file-storage.util';
 
 @Injectable()
 export class UserService {
   private provider: ethers.JsonRpcProvider;
   private userRegistry: ethers.Contract;
+  private propertyRegistry: ethers.Contract;
 
   constructor(private readonly config: ConfigService) {
     const rpcUrl = config.get<string>('RPC_URL');
-    const contractAddress = config.get<string>('USER_REGISTRY_ADDRESS');
+    const userRegistryAddress = config.get<string>('USER_REGISTRY_ADDRESS');
+    const propertyRegistryAddress = config.get<string>('PROPERTY_REGISTRY_ADDRESS');
 
-    if (!rpcUrl || !contractAddress) {
-      throw new Error('Missing RPC_URL or USER_REGISTRY_ADDRESS in environment');
+    if (!rpcUrl || !userRegistryAddress || !propertyRegistryAddress) {
+      throw new Error('Missing environment configuration.');
     }
 
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
-    this.userRegistry = new ethers.Contract(contractAddress, userRegistryABI, this.provider);
-    // this.validateLocalUsers();
-
+    this.userRegistry = new ethers.Contract(userRegistryAddress, userRegistryABI, this.provider);
+    this.propertyRegistry = new ethers.Contract(propertyRegistryAddress, propertyRegistryABI, this.provider);
   }
-
 
   async registerUser({ userId }: RegisterUserDto) {
     if (!userId || !userId.trim()) {
-      throw new Error('User ID is required.');
+      throw new Error('❌ User ID is required.');
     }
 
-    const exists = await this.userRegistry.userExists(userId);
-    if (exists) {
-      throw new Error('User ID already exists.');
+    try {
+      const userData = await this.userRegistry.getUserById(userId);
+      const walletAddress = userData[1];
+      if (walletAddress && walletAddress !== ethers.ZeroAddress) {
+        throw new Error('❌ User ID already exists.');
+      }
+    } catch (error: any) {
+      const err = error.reason || error.message || '';
+      if (!err.includes('User not found')) {
+        throw new Error(`❌ Failed to check user: ${err}`);
+      }
     }
 
-    // 🔐 Generate new wallet
     const wallet = ethers.Wallet.createRandom();
     const walletAddress = wallet.address;
     const privateKey = wallet.privateKey;
 
-    // 💰 Fund new wallet from PoA admin
     const poaKey = this.config.get<string>('POA_ADMIN_PRIVATE_KEY')!;
     const funder = new ethers.Wallet(poaKey, this.provider);
-    const fundTx = await funder.sendTransaction({
+    await (await funder.sendTransaction({
       to: walletAddress,
       value: ethers.parseEther('0.01'),
-    });
-    await fundTx.wait();
+    })).wait();
 
-    // 📝 Register user on-chain
-    const walletWithProvider = wallet.connect(this.provider);
-    const contractWithUser = this.userRegistry.connect(walletWithProvider);
-    const tx = await (contractWithUser as any).registerUser(userId);
-    await tx.wait();
-    saveLocalUser({ userId, walletAddress });
+    const contractWithUser = this.userRegistry.connect(wallet.connect(this.provider));
+    await (await (contractWithUser as any).registerUser(userId)).wait();
+
     return {
       message: '✅ User registered successfully. Save this wallet info!',
       userId,
@@ -63,24 +65,83 @@ export class UserService {
     };
   }
 
-  async validateLocalUsers() {
-    const localUsers = getLocalUsers();
-    const validUsers = [];
+  async getUserById(userId: string) {
+    const [id, address, isAdmin] = await this.userRegistry.getUserById(userId);
+    return { userId: id, walletAddress: address, isAdmin };
+  }
 
-    for (const user of localUsers) {
-      const exists = await this.userRegistry.userExists(user.userId);
-      if (exists) validUsers.push(user);
-    }
+  async getUserIdByAddress(address: string) {
+    return this.userRegistry.getUserIdByAddress(address);
+  }
 
-    overwriteLocalUsers(validUsers);
+  async userExists(userId: string): Promise<boolean> {
+    return this.userRegistry.userExists(userId);
+  }
 
+  async getUserAssets(walletAddress: string) {
+    const propertyIds: string[] = await this.propertyRegistry.getPropertiesByOwner(walletAddress);
+
+    const properties = await Promise.all(
+      propertyIds.map(async (id: string) => {
+        const prop = await this.propertyRegistry.getProperty(id);
+        return {
+          uniqueId: prop[0],
+          name: prop[1],
+          propertyType: prop[2],
+          serialNumber: prop[3],
+          location: prop[4],
+          currentOwner: prop[5],
+          transferredByAdmin: prop[6],
+          lastTransferTime: Number(prop[7]) * 1000,
+        };
+      })
+    );
+
+    return properties;
+  }
+
+  async getProperty(uniqueId: string) {
+    const prop = await this.propertyRegistry.getProperty(uniqueId);
     return {
-      removed: localUsers.length - validUsers.length,
-      remaining: validUsers.length,
-      users: validUsers,
+      uniqueId: prop[0],
+      name: prop[1],
+      propertyType: prop[2],
+      serialNumber: prop[3],
+      location: prop[4],
+      currentOwner: prop[5],
+      transferredByAdmin: prop[6],
+      lastTransferTime: Number(prop[7]) * 1000,
     };
   }
 
+  async canTransferProperty(uniqueId: string): Promise<boolean> {
+    return this.propertyRegistry.canTransferProperty(uniqueId);
+  }
+
+  async transferProperty(
+    uniqueId: string,
+    toAddress: string,
+    fromPrivateKey: string
+  ) {
+    const senderWallet = new ethers.Wallet(fromPrivateKey, this.provider);
+    const contractWithSigner = this.propertyRegistry.connect(senderWallet);
+    console.log("uniqueId:", uniqueId);
+    console.log("toAddress:", toAddress);
+    console.log("fromPrivateKey:", fromPrivateKey);
+
+    const property = await this.propertyRegistry.getProperty(uniqueId);
+    console.log("Current Owner:", property.currentOwner);
+    console.log("Transferred By Admin:", property.transferredByAdmin);
+    console.log("Last Transfer:", new Date(Number(property.lastTransferTime) * 1000));
+
+
+    const tx = await (contractWithSigner as any).transferProperty(uniqueId, toAddress, false);
+    await tx.wait();
+
+    return { message: '✅ Property transferred successfully.' };
+  }
+
+  async getOwnershipHistory(uniqueId: string): Promise<string[]> {
+    return await this.propertyRegistry.getOwnershipHistory(uniqueId);
+  }
 }
-
-

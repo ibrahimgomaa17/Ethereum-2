@@ -19,7 +19,6 @@ contract UserRegistry {
     mapping(address => string) private addressToUserId; // Mapping from address to userId
     mapping(string => bool) private admins; // Admins by userId
     mapping(string => AssetTransfer[]) private transferHistory; // Transfer history by userId
-    string[] private allUserIds;
 
     bytes32 public immutable poaAdminId;
 
@@ -51,7 +50,6 @@ contract UserRegistry {
         users["admin"] = User("admin", msg.sender, true);
         addressToUserId[msg.sender] = "admin";
         admins["admin"] = true;
-        allUserIds.push("admin");
         emit AdminAdded("admin");
     }
 
@@ -67,7 +65,6 @@ contract UserRegistry {
 
         users[_userId] = User(_userId, msg.sender, false);
         addressToUserId[msg.sender] = _userId;
-        allUserIds.push(_userId);
 
         emit UserRegistered(_userId, msg.sender, false);
     }
@@ -87,19 +84,17 @@ contract UserRegistry {
         return admins[_userId];
     }
 
+    function userExists(string memory _userId) public view returns (bool) {
+        return users[_userId].walletAddress != address(0);
+    }
+
     function getUserById(
         string memory _userId
     ) public view returns (string memory, address, bool) {
-        require(
-            users[_userId].walletAddress != address(0),
-            "Error: User not found."
-        );
         User memory user = users[_userId];
+        require(user.walletAddress != address(0), "Error: User not found.");
         return (user.userId, user.walletAddress, user.isAdmin);
     }
-    function userExists(string memory _userId) public view returns (bool) {
-    return users[_userId].walletAddress != address(0);
-}
 
     function getUserIdByAddress(
         address _walletAddress
@@ -147,22 +142,9 @@ contract UserRegistry {
         emit AssetRecalled(_fromId, addressToUserId[msg.sender]);
     }
 
-    function getAllUsers()
-        public
-        view
-        returns (string[] memory, address[] memory, bool[] memory)
-    {
-        string[] memory userIds = new string[](allUserIds.length);
-        address[] memory walletAddresses = new address[](allUserIds.length);
-        bool[] memory isAdmins = new bool[](allUserIds.length);
-
-        for (uint i = 0; i < allUserIds.length; i++) {
-            User memory user = users[allUserIds[i]];
-            userIds[i] = user.userId;
-            walletAddresses[i] = user.walletAddress;
-            isAdmins[i] = user.isAdmin;
-        }
-
-        return (userIds, walletAddresses, isAdmins);
+    function getTransferHistory(
+        string memory _userId
+    ) public view returns (AssetTransfer[] memory) {
+        return transferHistory[_userId];
     }
 }

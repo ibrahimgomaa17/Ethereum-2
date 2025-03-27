@@ -12,33 +12,52 @@ export class AuthService {
   private jwtSecret: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.provider = new ethers.JsonRpcProvider(configService.get('RPC_URL'));
-    this.userRegistry = new ethers.Contract(
-      configService.get<string>('USER_REGISTRY_ADDRESS') || (() => { throw new Error('USER_REGISTRY_ADDRESS is not defined'); })(),
-      userRegistryABI,
-      this.provider,
-    );
-    this.jwtSecret = configService.get('JWT_SECRET') || '';
+    const rpcUrl = configService.get<string>('RPC_URL');
+    const contractAddress = configService.get<string>('USER_REGISTRY_ADDRESS');
+
+    if (!rpcUrl || !contractAddress) {
+      throw new Error('Missing RPC_URL or USER_REGISTRY_ADDRESS in environment');
+    }
+
+    this.provider = new ethers.JsonRpcProvider(rpcUrl);
+    this.userRegistry = new ethers.Contract(contractAddress, userRegistryABI, this.provider);
+    this.jwtSecret = configService.get<string>('JWT_SECRET') || 'default_secret';
   }
 
   async login({ userId, privateKey }: LoginDto) {
-    const userData = await this.userRegistry.getUserById(userId);
+    let userData;
 
-    if (!userData || userData[1] === ethers.ZeroAddress) {
-      throw new Error('❌ User not found in blockchain');
+    try {
+      // Call the contract to fetch user data
+      userData = await this.userRegistry.getUserById(userId);
+    } catch (error: any) {
+      if (
+        error.reason?.includes('User not found') ||
+        error.message?.includes('User not found')
+      ) {
+        throw new Error('❌ User not found in blockchain');
+      }
+      throw error;
     }
 
-    const registeredAddress = userData[1];
-    const wallet = new ethers.Wallet(privateKey);
+    const [_, registeredAddress, isAdmin] = userData;
 
+    if (!registeredAddress || registeredAddress === ethers.ZeroAddress) {
+      throw new Error('❌ User ID is not registered');
+    }
+
+    // Validate private key
+    const wallet = new ethers.Wallet(privateKey);
     if (wallet.address.toLowerCase() !== registeredAddress.toLowerCase()) {
       throw new Error('❌ Invalid private key');
     }
 
-    const userRole = userData[2] ? 'Admin' : 'User';
-    const token = jwt.sign({ userId, address: wallet.address }, this.jwtSecret, {
-      expiresIn: '1h',
-    });
+    // Create JWT
+    const token = jwt.sign(
+      { userId, address: wallet.address, isAdmin },
+      this.jwtSecret,
+      { expiresIn: '1h' }
+    );
 
     return {
       message: '✅ Login successful!',
@@ -46,7 +65,7 @@ export class AuthService {
       user: {
         userId,
         walletAddress: wallet.address,
-        userRole,
+        userRole: isAdmin ? 'Admin' : 'User',
       },
     };
   }
