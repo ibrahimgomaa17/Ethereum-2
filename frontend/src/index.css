@@ -122,3 +122,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+.btn{
+  @apply cursor-pointer transform transition-all focus:translate-y-px active:translate-y-px filter active:contrast-50;
+}

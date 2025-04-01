@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/sidebar";
 import { GalleryVerticalEnd } from "lucide-react";
 import { NavUser } from "./nav-user";
+import { User } from "@/services/admin";
 
 // Navigation Data
 
 interface AppSidebarProps {
-    user: any;
+    user: User;
     onLogout: () => void;
     navLinks:any[]
 }

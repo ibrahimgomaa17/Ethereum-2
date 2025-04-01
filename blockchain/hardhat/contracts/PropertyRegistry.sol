@@ -2,6 +2,13 @@
 pragma solidity ^0.8.20;
 
 contract PropertyRegistry {
+    struct TransferRecord {
+        address previousOwner;
+        address newOwner;
+        uint256 transferTime;
+        bool transferredByAdmin;
+    }
+
     struct Property {
         string uniqueId;
         string name;
@@ -9,7 +16,7 @@ contract PropertyRegistry {
         string serialNumber;
         string location;
         address currentOwner;
-        address[] ownershipHistory;
+        TransferRecord[] transferHistory;  // Replace ownershipHistory with transferHistory
         uint256 lastTransferTime;
         bool transferredByAdmin;
     }
@@ -51,7 +58,15 @@ contract PropertyRegistry {
         newProperty.currentOwner = _owner;
         newProperty.lastTransferTime = block.timestamp;
         newProperty.transferredByAdmin = false;
-        newProperty.ownershipHistory.push(_owner);
+        
+        // Initialize transfer history with the first owner
+        newProperty.transferHistory.push(TransferRecord({
+            previousOwner: address(0),  // No previous owner at the beginning
+            newOwner: _owner,
+            transferTime: block.timestamp,
+            transferredByAdmin: false
+        }));
+
         ownerProperties[_owner].push(uniqueId);
         allPropertyIds.push(uniqueId);
 
@@ -74,22 +89,31 @@ contract PropertyRegistry {
             );
         }
 
-        _removePropertyFromOwner(prop.currentOwner, _uniqueId);
+        address previousOwner = prop.currentOwner;
         prop.currentOwner = _newOwner;
         prop.lastTransferTime = block.timestamp;
-        prop.ownershipHistory.push(_newOwner);
+        
+        // Add the new transfer record
+        prop.transferHistory.push(TransferRecord({
+            previousOwner: previousOwner,
+            newOwner: _newOwner,
+            transferTime: block.timestamp,
+            transferredByAdmin: _byAdmin
+        }));
+
+        _removePropertyFromOwner(previousOwner, _uniqueId);
         ownerProperties[_newOwner].push(_uniqueId);
 
-        emit OwnershipTransferred(_uniqueId, msg.sender, _newOwner);
+        emit OwnershipTransferred(_uniqueId, previousOwner, _newOwner);
     }
 
     function recallProperty(string memory _uniqueId) public propertyExists(_uniqueId) {
         Property storage prop = properties[_uniqueId];
         require(prop.transferredByAdmin, "Error: Cannot recall a property transferred by owner");
-        require(prop.ownershipHistory.length > 1, "Error: No previous owner to recall");
-        require(prop.ownershipHistory[prop.ownershipHistory.length - 2] == msg.sender, "Error: Only previous owner can recall");
+        require(prop.transferHistory.length > 1, "Error: No previous owner to recall");
+        require(prop.transferHistory[prop.transferHistory.length - 2].newOwner == msg.sender, "Error: Only previous owner can recall");
 
-        address previousOwner = prop.ownershipHistory[prop.ownershipHistory.length - 2];
+        address previousOwner = prop.transferHistory[prop.transferHistory.length - 2].newOwner;
         prop.currentOwner = previousOwner;
         prop.transferredByAdmin = false;
 
@@ -133,8 +157,8 @@ contract PropertyRegistry {
         return !prop.transferredByAdmin || block.timestamp >= prop.lastTransferTime + 365 days;
     }
 
-    function getOwnershipHistory(string memory _uniqueId) public view propertyExists(_uniqueId) returns (address[] memory) {
-        return properties[_uniqueId].ownershipHistory;
+    function getTransferHistory(string memory _uniqueId) public view propertyExists(_uniqueId) returns (TransferRecord[] memory) {
+        return properties[_uniqueId].transferHistory;
     }
 
     function getAllProperties() public view returns (Property[] memory) {

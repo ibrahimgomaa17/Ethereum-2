@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAdmin, CreateAsset, User } from '@/services/admin';
@@ -9,11 +9,12 @@ import { toast } from 'sonner';
 const PROPERTY_TYPES = ['Car', 'House', 'Land', 'Electronic Device', 'Furniture', 'Other'];
 interface AssetManagementProps {
     user: User; // Replace `any` with the appropriate type for `user` if available
-    createAsset: (id:string) => void
+    createAsset: (id: string) => void;
+    openDrawer: boolean;
+    setOpenDrawer: any
 }
-export const CreateAssetDrawer = ({ user, createAsset }: AssetManagementProps) => {
+export const CreateAssetDrawer = ({ user, createAsset, openDrawer,  setOpenDrawer}: AssetManagementProps) => {
     const { registerAsset } = useAdmin();
-    const [open, setOpen] = useState(false);
     const [newAsset, setNewAsset] = useState<CreateAsset>({
         adminPrivateKey: '',
         name: '',
@@ -47,10 +48,7 @@ export const CreateAssetDrawer = ({ user, createAsset }: AssetManagementProps) =
     };
 
     return (
-        <Drawer open={open} onOpenChange={setOpen} direction="right">
-            <DrawerTrigger asChild>
-                <Button>Create Asset</Button>
-            </DrawerTrigger>
+        <Drawer open={openDrawer} onOpenChange={setOpenDrawer} direction="right">
             <DrawerContent>
                 <DrawerHeader>
                     <DrawerTitle>Create a New Asset</DrawerTitle>

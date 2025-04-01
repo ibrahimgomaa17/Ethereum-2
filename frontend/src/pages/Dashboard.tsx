@@ -17,13 +17,9 @@ const adminLinks = [
               url: "admin", // ✅ Set Dashboard to "admin"
           },
           {
-              title: "Users",
-              url: "admin/users",
+              title: "Admin Actions",
+              url: "admin/actions",
           },
-          {
-              title: "Assets",
-              url: "admin/asset-management",
-          }
       ],
   },
 ]

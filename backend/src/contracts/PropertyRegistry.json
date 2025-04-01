@@ -130,9 +130,31 @@
             "type": "address"
           },
           {
-            "internalType": "address[]",
-            "name": "ownershipHistory",
-            "type": "address[]"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "transferTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "transferredByAdmin",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct PropertyRegistry.TransferRecord[]",
+            "name": "transferHistory",
+            "type": "tuple[]"
           },
           {
             "internalType": "uint256",
@@ -148,25 +170,6 @@
         "internalType": "struct PropertyRegistry.Property[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_uniqueId",
-        "type": "string"
-      }
-    ],
-    "name": "getOwnershipHistory",
-    "outputs": [
-      {
-        "internalType": "address[]",
-        "name": "",
-        "type": "address[]"
       }
     ],
     "stateMutability": "view",
@@ -240,6 +243,47 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_uniqueId",
+        "type": "string"
+      }
+    ],
+    "name": "getTransferHistory",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "transferTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "transferredByAdmin",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PropertyRegistry.TransferRecord[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
