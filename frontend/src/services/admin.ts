@@ -14,7 +14,7 @@ export interface Asset {
   serialNumber: string;
   location: string;
   currentOwner: string;
-  adminPrivateKey:string
+  adminPrivateKey: string;
 }
 export interface CreateAsset {
   adminPrivateKey: string;
@@ -24,8 +24,6 @@ export interface CreateAsset {
   location: string;
   owner: string;
 }
-
-
 
 export const useAdmin = () => {
   const { http } = useFetchInterceptor();
@@ -45,10 +43,11 @@ export const useAdmin = () => {
       const response = await http("/admin/properties");
       return response.properties;
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching assets:", error);
       return [];
     }
   };
+
   const registerAsset = async (asset: CreateAsset): Promise<{ message?: string; error?: string }> => {
     try {
       const response = await http("/property/register", {
@@ -56,19 +55,37 @@ export const useAdmin = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(asset),
       });
-  
+
       if (response.message) {
         console.log("Asset registered successfully:", response.message);
       }
-  
+
       return response;
     } catch (error: any) {
       console.error("Error creating asset:", error);
       return { error: error.message || "Unexpected error occurred" };
     }
   };
-  
-  
 
-  return { fetchUsers, fetchAssets, registerAsset };
+  const lookupEntityById = async (
+    id: string
+  ): Promise<{ user: User | null; assets: Asset[] }> => {
+    try {
+      const response = await http(`/admin/lookup/${id}`);
+      return {
+        user: response.user,
+        assets: response.assets || [],
+      };
+    } catch (error) {
+      console.error("Error looking up entity by ID:", error);
+      return { user: null, assets: [] };
+    }
+  };
+
+  return {
+    fetchUsers,
+    fetchAssets,
+    registerAsset,
+    lookupEntityById,
+  };
 };

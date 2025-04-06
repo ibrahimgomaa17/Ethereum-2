@@ -1,50 +1,67 @@
-import { Asset } from "./admin";
+import { Asset, User } from "./admin";
 import { useFetchInterceptor } from "./http";
 
 export const useUser = () => {
-    const { http } = useFetchInterceptor();
+  const { http } = useFetchInterceptor();
 
-    const fetchUserAssets = async (userId: string): Promise<Asset[]> => {
-        if (!userId) {
-            console.warn("No userId provided to fetchUserAssets.");
-            return [];
-        }
+  const fetchUserAssets = async (userId: string): Promise<Asset[]> => {
+    if (!userId) {
+      console.warn("No userId provided to fetchUserAssets.");
+      return [];
+    }
 
-        try {
-            const response = await http(`/user/${userId}/assets`);
-            return response.assets;
-        } catch (error) {
-            console.error("❌ Error fetching user assets:", error);
-            return [];
-        }
-    };
-    const transferAsset = async ({
-        uniqueId,
-        toAddress,
-        privateKey,
-    }: {
-        uniqueId: string;
-        toAddress: string;
-        privateKey: string;
-    }): Promise<{ message?: string; error?: string }> => {
-        try {
-            const response = await http("/user/property/transfer", {
-                method: "POST",
-                body: JSON.stringify({
-                    uniqueId,
-                    toAddress,
-                    privateKey,
-                }),
-            });
+    try {
+      const response = await http(`/user/${userId}/assets`);
+      return response.assets;
+    } catch (error) {
+      console.error("❌ Error fetching user assets:", error);
+      return [];
+    }
+  };
 
-            return { message: response.message };
-        } catch (error: any) {
-            return { error: error.message || "Transfer failed" };
-        }
-    };
+  const transferAsset = async ({
+    uniqueId,
+    toAddress,
+    privateKey,
+  }: {
+    uniqueId: string;
+    toAddress: string;
+    privateKey: string;
+  }): Promise<{ message?: string; error?: string }> => {
+    try {
+      const response = await http("/user/property/transfer", {
+        method: "POST",
+        body: JSON.stringify({
+          uniqueId,
+          toAddress,
+          privateKey,
+        }),
+      });
 
-    return {
-        fetchUserAssets,
-        transferAsset,
-    };
+      return { message: response.message };
+    } catch (error: any) {
+      return { error: error.message || "Transfer failed" };
+    }
+  };
+
+  const fetchUserById = async (userId: string): Promise<User | null> => {
+    if (!userId) {
+      console.warn("No userId provided to fetchUserById.");
+      return null;
+    }
+
+    try {
+      const response = await http(`/user/${userId}`);
+      return response;
+    } catch (error) {
+      console.error("❌ Error fetching user by ID:", error);
+      return null;
+    }
+  };
+
+  return {
+    fetchUserAssets,
+    transferAsset,
+    fetchUserById,
+  };
 };

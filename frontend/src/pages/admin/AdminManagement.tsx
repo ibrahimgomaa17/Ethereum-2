@@ -35,7 +35,7 @@ function AdminManagement({ user }: AdminManagementProps) {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Assets</BreadcrumbPage>
+                <BreadcrumbPage>Asset Management</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -59,21 +59,6 @@ function AdminManagement({ user }: AdminManagementProps) {
             <div className="flex flex-col justify-center items-center p-5 rounded bg-muted w-full h-full m-1 btn">
               <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight select-none">
                 Transfer Ownership
-              </h3>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-stretch px-1 w-1/2 min-h-32">
-            <div className="flex flex-col justify-center items-center p-5 rounded bg-muted w-full h-full m-1 btn">
-              <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight select-none">
-               Make An Admin
-              </h3>
-            </div>
-          </div>
-          <div className="flex flex-col items-stretch px-1 w-1/2 min-h-32">
-            <div className="flex flex-col justify-center items-center p-5 rounded bg-muted w-full h-full m-1 btn">
-              <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight select-none">
-               Remove An Admin
               </h3>
             </div>
           </div>

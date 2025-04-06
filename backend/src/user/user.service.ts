@@ -67,7 +67,7 @@ export class UserService {
 
   async getUserById(userId: string) {
     const [id, address, isAdmin] = await this.userRegistry.getUserById(userId);
-    return { userId: id, walletAddress: address, isAdmin };
+    return { userId: id, walletAddress: address,  userRole: isAdmin ? 'Admin' : 'User' };
   }
 
   async getUserIdByAddress(address: string) {

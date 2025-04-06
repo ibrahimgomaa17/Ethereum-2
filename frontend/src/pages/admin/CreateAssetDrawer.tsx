@@ -28,7 +28,6 @@ export const CreateAssetDrawer = ({ user, createAsset, openDrawer,  setOpenDrawe
         const response = await registerAsset(newAsset);
         if ('message' in response) {
             toast.success(response.message);
-            setOpen(false);
             createAsset(response.message as string)
             setNewAsset({ adminPrivateKey: '', name: '', propertyType: '', serialNumber: '', location: '', owner: '' });
         } else if ('error' in response) {

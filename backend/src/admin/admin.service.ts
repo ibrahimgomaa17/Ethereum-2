@@ -96,4 +96,71 @@ export class AdminService {
     }
   }
 
+  async searchEntityById(idOrAddress: string): Promise<{ user: any | null; assets: any[] }> {
+    try {
+      // Try treating input as user ID
+      const [userId, walletAddress, isAdmin] = await this.userRegistry.getUserById(idOrAddress);
+      return this.buildUserAndAssets(userId, walletAddress, isAdmin);
+    } catch {
+      try {
+        // Try treating input as wallet address → get userId
+        const userId = await this.userRegistry.getUserIdByAddress(idOrAddress);
+        const [uid, walletAddress, isAdmin] = await this.userRegistry.getUserById(userId);
+        return this.buildUserAndAssets(uid, walletAddress, isAdmin);
+      } catch {
+        try {
+          // Try property search by ID
+          const prop = await this.propertyRegistry.getProperty(idOrAddress);
+          return {
+            user: null,
+            assets: [
+              {
+                uniqueId: prop[0],
+                name: prop[1],
+                propertyType: prop[2],
+                serialNumber: prop[3],
+                location: prop[4],
+                currentOwner: prop[5],
+                transferredByAdmin: prop[6],
+                lastTransferTime: Number(prop[7]) * 1000,
+              },
+            ],
+          };
+        } catch {
+          return { user: null, assets: [] };
+        }
+      }
+    }
+  }
+  
+  // 🔁 Helper method to reuse user+asset response building
+  private async buildUserAndAssets(userId: string, walletAddress: string, isAdmin: boolean) {
+    const user = {
+      userId,
+      walletAddress,
+      isAdmin,
+      userRole: isAdmin ? "Admin" : "User",
+    };
+  
+    const propertyIds = await this.propertyRegistry.getPropertiesByOwner(walletAddress);
+    const assets = await Promise.all(
+      propertyIds.map(async (propId: string) => {
+        const prop = await this.propertyRegistry.getProperty(propId);
+        return {
+          uniqueId: prop[0],
+          name: prop[1],
+          propertyType: prop[2],
+          serialNumber: prop[3],
+          location: prop[4],
+          currentOwner: prop[5],
+          transferredByAdmin: prop[6],
+          lastTransferTime: Number(prop[7]) * 1000,
+        };
+      })
+    );
+  
+    return { user, assets };
+  }
+  
+
 }

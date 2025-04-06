@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpException, HttpStatus, Param } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { AddAdminDto } from './dto/add-admin.dto';
 import { RemoveAdminDto } from './dto/remove-admin.dto';
@@ -31,5 +31,9 @@ export class AdminController {
   @Get('users')
   async getAllUsers() {
     return this.adminService.getAllUsers();
+  }
+  @Get('lookup/:id')
+  async searchById(@Param('id') id: string) {
+    return await this.adminService.searchEntityById(id);
   }
 }
