@@ -5,6 +5,7 @@ export interface User {
   walletAddress: string;
   userRole: string;
 }
+
 export interface Asset {
   lastTransferTime: string | number | Date;
   transferredByAdmin: any;
@@ -16,6 +17,7 @@ export interface Asset {
   currentOwner: string;
   adminPrivateKey: string;
 }
+
 export interface CreateAsset {
   adminPrivateKey: string;
   name: string;
@@ -23,6 +25,19 @@ export interface CreateAsset {
   serialNumber: string;
   location: string;
   owner: string;
+}
+
+export interface TransferAssetPayload {
+  propertyId: string;
+  newOwnerAddress: string;
+  senderPrivateKey: string;
+  byAdmin: boolean;
+}
+
+export interface TransferAllAssetsPayload {
+  fromAddress: string;
+  toAddress: string;
+  adminPrivateKey: string;
 }
 
 export const useAdmin = () => {
@@ -48,7 +63,9 @@ export const useAdmin = () => {
     }
   };
 
-  const registerAsset = async (asset: CreateAsset): Promise<{ message?: string; error?: string }> => {
+  const registerAsset = async (
+    asset: CreateAsset
+  ): Promise<{ message?: string; error?: string }> => {
     try {
       const response = await http("/property/register", {
         method: "POST",
@@ -63,6 +80,48 @@ export const useAdmin = () => {
       return response;
     } catch (error: any) {
       console.error("Error creating asset:", error);
+      return { error: error.message || "Unexpected error occurred" };
+    }
+  };
+
+  const transferProperty = async (
+    transfer: TransferAssetPayload
+  ): Promise<{ message?: string; error?: string }> => {
+    try {
+      const response = await http("/admin/transfer-property", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(transfer),
+      });
+
+      if (response.message) {
+        console.log("Property transferred successfully:", response.message);
+      }
+
+      return response;
+    } catch (error: any) {
+      console.error("Error transferring property:", error);
+      return { error: error.message || "Unexpected error occurred" };
+    }
+  };
+
+  const transferAllAssets = async (
+    payload: TransferAllAssetsPayload
+  ): Promise<{ message?: string; error?: string }> => {
+    try {
+      const response = await http("/admin/transfer-all-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.message) {
+        console.log("All assets transferred successfully:", response.message);
+      }
+
+      return response;
+    } catch (error: any) {
+      console.error("Error transferring all assets:", error);
       return { error: error.message || "Unexpected error occurred" };
     }
   };
@@ -86,6 +145,8 @@ export const useAdmin = () => {
     fetchUsers,
     fetchAssets,
     registerAsset,
+    transferProperty,
+    transferAllAssets,
     lookupEntityById,
   };
 };

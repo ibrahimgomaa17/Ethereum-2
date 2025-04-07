@@ -162,5 +162,50 @@ export class AdminService {
     return { user, assets };
   }
   
+  
+
+  async transferPropertyToUser(
+    propertyId: string,
+    newOwnerAddress: string,
+    senderPrivateKey: string,
+    byAdmin: boolean = false,
+  ) {
+    try {
+      const wallet = new ethers.Wallet(senderPrivateKey, this.provider);
+      const contractWithSigner = this.propertyRegistry.connect(wallet);
+
+      const tx = await (contractWithSigner as any).transferProperty(propertyId, newOwnerAddress, byAdmin);
+      await tx.wait();
+
+      return {
+        message: `✅ Property ${propertyId} successfully transferred to ${newOwnerAddress}`,
+      };
+    } catch (error) {
+      console.error(`❌ Error transferring property ${propertyId}:`, error);
+      throw new Error('Failed to transfer property');
+    }
+  }
+
+  async transferAllAssetsFromUser(
+    fromAddress: string,
+    toAddress: string,
+    adminPrivateKey: string,
+  ) {
+    try {
+      const wallet = new ethers.Wallet(adminPrivateKey, this.provider);
+      const contractWithSigner = this.propertyRegistry.connect(wallet);
+
+      const tx = await (contractWithSigner as any).transferAllPropertiesOfUser(fromAddress, toAddress);
+      await tx.wait();
+
+      return {
+        message: `✅ All assets transferred from ${fromAddress} to ${toAddress}`,
+      };
+    } catch (error) {
+      console.error(`❌ Error transferring all assets from ${fromAddress} to ${toAddress}:`, error);
+      throw new Error('Failed to transfer all assets');
+    }
+  }
+
 
 }

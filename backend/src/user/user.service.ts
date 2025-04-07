@@ -80,8 +80,8 @@ export class UserService {
 
   async getUserAssets(walletAddress: string) {
     const propertyIds: string[] = await this.propertyRegistry.getPropertiesByOwner(walletAddress);
-
-    const properties = await Promise.all(
+  
+    const currentAssets = await Promise.all(
       propertyIds.map(async (id: string) => {
         const prop = await this.propertyRegistry.getProperty(id);
         return {
@@ -96,10 +96,40 @@ export class UserService {
         };
       })
     );
-
-    return properties;
+  
+    // Get all properties on-chain (for previous ownership check)
+    const allProperties = await this.propertyRegistry.getAllProperties();
+  
+    const previouslyOwnedAssets = allProperties
+      .filter(prop => {
+        const history = prop.transferHistory;
+        const currentOwner = prop.currentOwner;
+        if (history.length < 2) return false;
+  
+        const lastTransfer = history[history.length - 1];
+        return (
+          lastTransfer.transferredByAdmin &&
+          lastTransfer.previousOwner.toLowerCase() === walletAddress.toLowerCase() &&
+          currentOwner.toLowerCase() !== walletAddress.toLowerCase()
+        );
+      })
+      .map(prop => ({
+        uniqueId: prop.uniqueId,
+        name: prop.name,
+        propertyType: prop.propertyType,
+        serialNumber: prop.serialNumber,
+        location: prop.location,
+        currentOwner: prop.currentOwner,
+        transferredByAdmin: prop.transferredByAdmin,
+        lastTransferTime: Number(prop.lastTransferTime) * 1000,
+      }));
+  
+    return {
+      currentAssets,
+      previouslyOwnedAssets,
+    };
   }
-
+  
   async getProperty(uniqueId: string) {
     const prop = await this.propertyRegistry.getProperty(uniqueId);
     return {

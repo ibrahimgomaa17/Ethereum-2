@@ -3,6 +3,8 @@ import { AdminService } from './admin.service';
 import { AddAdminDto } from './dto/add-admin.dto';
 import { RemoveAdminDto } from './dto/remove-admin.dto';
 import { MakePoaAdminDto } from './dto/make-poa-admin.dto';
+import { TransferPropertyDto } from './dto/transfer-property.dto';
+import { TransferAllAssetsDto } from './dto/transfer-all-assets.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -35,5 +37,24 @@ export class AdminController {
   @Get('lookup/:id')
   async searchById(@Param('id') id: string) {
     return await this.adminService.searchEntityById(id);
+  }
+  @Post('transfer-all-assets')
+  async transferAllAssets(@Body() dto: TransferAllAssetsDto) {
+    return this.adminService.transferAllAssetsFromUser(
+      dto.fromAddress,
+      dto.toAddress,
+      dto.adminPrivateKey,
+    );
+  }
+
+  // You may already have this
+  @Post('transfer-property')
+  async transferProperty(@Body() dto: TransferPropertyDto) {
+    return this.adminService.transferPropertyToUser(
+      dto.propertyId,
+      dto.newOwnerAddress,
+      dto.senderPrivateKey,
+      dto.byAdmin,
+    );
   }
 }

@@ -1,26 +1,45 @@
 import { SearchForm } from "@/components/search-form";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Table,
+} from "@/components/ui/table";
 import { useAdmin, Asset, User } from "@/services/admin";
 import { Separator } from "@radix-ui/react-separator";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CreateAssetDrawer } from "./CreateAssetDrawer";
+import { TransferAssetsDrawer } from "./TransferAssetsDrawer"; // ✅ import the drawer
 import { Button } from "@/components/ui/button";
+
 interface AdminManagementProps {
-  user: User; // Replace `any` with the appropriate type for `user` if available
+  user: User;
 }
 
 function AdminManagement({ user }: AdminManagementProps) {
   const { fetchAssets } = useAdmin();
   const [create, setCreate] = useState('');
-  const [openDrawer, setOpenDrawer] = useState(false);
-
+  const [openCreateDrawer, setOpenCreateDrawer] = useState(false);
+  const [openTransferDrawer, setOpenTransferDrawer] = useState(false); // ✅ new state
 
   const createAsset = (assetID: string) => {
     setCreate(assetID);
   };
 
+  const refreshAssets = async () => {
+    await fetchAssets();
+  };
 
   return (
     <>
@@ -40,22 +59,27 @@ function AdminManagement({ user }: AdminManagementProps) {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        {/* <div className="flex flex-row w-full justify-end">
-          <SearchForm searchQuery={searchQuery} className="sm:ml-auto sm:w-auto" />
-          <CreateAssetDrawer createAsset={createAsset} user={user}></CreateAssetDrawer>
-
-        </div> */}
       </header>
+
       <div className="flex flex-col items-center justify-center gap-4 p-4">
         <div className="flex flex-row flex-wrap max-w-xl w-full">
-          <div className="flex flex-col items-stretch px-1 w-1/2 min-h-32" onClick={() => setOpenDrawer(true)}>
+          {/* Register asset */}
+          <div
+            className="flex flex-col items-stretch px-1 w-1/2 min-h-32"
+            onClick={() => setOpenCreateDrawer(true)}
+          >
             <div className="flex flex-col justify-center items-center p-5 rounded bg-muted w-full h-full m-1 btn">
               <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight select-none">
                 Register Asset
               </h3>
             </div>
           </div>
-          <div className="flex flex-col items-stretch px-1 w-1/2 min-h-32">
+
+          {/* Transfer asset */}
+          <div
+            className="flex flex-col items-stretch px-1 w-1/2 min-h-32"
+            onClick={() => setOpenTransferDrawer(true)} // ✅ open transfer drawer
+          >
             <div className="flex flex-col justify-center items-center p-5 rounded bg-muted w-full h-full m-1 btn">
               <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight select-none">
                 Transfer Ownership
@@ -64,9 +88,21 @@ function AdminManagement({ user }: AdminManagementProps) {
           </div>
         </div>
       </div>
-      <CreateAssetDrawer createAsset={createAsset} user={user} openDrawer={openDrawer} setOpenDrawer={setOpenDrawer}></CreateAssetDrawer>
+
+      {/* Drawers */}
+      <CreateAssetDrawer
+        createAsset={createAsset}
+        user={user}
+        openDrawer={openCreateDrawer}
+        setOpenDrawer={setOpenCreateDrawer}
+      />
+      <TransferAssetsDrawer
+        openDrawer={openTransferDrawer}
+        setOpenDrawer={setOpenTransferDrawer}
+        refreshAssets={refreshAssets}
+      />
     </>
   );
-};
+}
 
 export default AdminManagement;

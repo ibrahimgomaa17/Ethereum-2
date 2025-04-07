@@ -16,7 +16,7 @@ contract PropertyRegistry {
         string serialNumber;
         string location;
         address currentOwner;
-        TransferRecord[] transferHistory;  // Replace ownershipHistory with transferHistory
+        TransferRecord[] transferHistory;
         uint256 lastTransferTime;
         bool transferredByAdmin;
     }
@@ -25,9 +25,13 @@ contract PropertyRegistry {
     mapping(address => string[]) private ownerProperties;
     string[] private allPropertyIds;
 
+    mapping(address => bool) public isAdmin;
+    address public owner;
+
     event PropertyRegistered(string uniqueId, string name, address indexed owner);
     event OwnershipTransferred(string uniqueId, address indexed previousOwner, address indexed newOwner);
     event PropertyRecalled(string uniqueId, address indexed previousOwner, address indexed recalledBy);
+    event AdminUpdated(address indexed admin, bool status);
 
     modifier propertyExists(string memory _uniqueId) {
         require(bytes(properties[_uniqueId].uniqueId).length > 0, "Error: Property not found");
@@ -37,6 +41,22 @@ contract PropertyRegistry {
     modifier onlyOwnerOrAdmin(string memory _uniqueId, bool _byAdmin) {
         require(properties[_uniqueId].currentOwner == msg.sender || _byAdmin, "Error: Only the owner or admin can transfer");
         _;
+    }
+
+    modifier onlyAdmin() {
+        require(isAdmin[msg.sender], "Error: Caller is not an admin");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+        isAdmin[msg.sender] = true;
+    }
+
+    function setAdmin(address _admin, bool _status) public {
+        require(msg.sender == owner, "Error: Only contract owner can update admins");
+        isAdmin[_admin] = _status;
+        emit AdminUpdated(_admin, _status);
     }
 
     function registerProperty(
@@ -58,10 +78,9 @@ contract PropertyRegistry {
         newProperty.currentOwner = _owner;
         newProperty.lastTransferTime = block.timestamp;
         newProperty.transferredByAdmin = false;
-        
-        // Initialize transfer history with the first owner
+
         newProperty.transferHistory.push(TransferRecord({
-            previousOwner: address(0),  // No previous owner at the beginning
+            previousOwner: address(0),
             newOwner: _owner,
             transferTime: block.timestamp,
             transferredByAdmin: false
@@ -92,8 +111,7 @@ contract PropertyRegistry {
         address previousOwner = prop.currentOwner;
         prop.currentOwner = _newOwner;
         prop.lastTransferTime = block.timestamp;
-        
-        // Add the new transfer record
+
         prop.transferHistory.push(TransferRecord({
             previousOwner: previousOwner,
             newOwner: _newOwner,
@@ -105,6 +123,38 @@ contract PropertyRegistry {
         ownerProperties[_newOwner].push(_uniqueId);
 
         emit OwnershipTransferred(_uniqueId, previousOwner, _newOwner);
+    }
+
+    function transferAllPropertiesOfUser(address _from, address _to) public onlyAdmin {
+        require(_from != _to, "Error: Cannot transfer to the same owner");
+        string[] storage userAssets = ownerProperties[_from];
+        require(userAssets.length > 0, "Error: No properties found for the user");
+
+        for (uint i = 0; i < userAssets.length; i++) {
+            string memory propertyId = userAssets[i];
+            Property storage prop = properties[propertyId];
+
+            if (prop.currentOwner != _from) {
+                continue;
+            }
+
+            prop.transferredByAdmin = true;
+            prop.lastTransferTime = block.timestamp;
+
+            prop.transferHistory.push(TransferRecord({
+                previousOwner: _from,
+                newOwner: _to,
+                transferTime: block.timestamp,
+                transferredByAdmin: true
+            }));
+
+            prop.currentOwner = _to;
+            ownerProperties[_to].push(propertyId);
+
+            emit OwnershipTransferred(propertyId, _from, _to);
+        }
+
+        delete ownerProperties[_from];
     }
 
     function recallProperty(string memory _uniqueId) public propertyExists(_uniqueId) {
