@@ -18,6 +18,12 @@
         "internalType": "bool",
         "name": "status",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "AdminUpdated",
@@ -43,6 +49,12 @@
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "OwnershipTransferred",
@@ -60,14 +72,20 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "previousOwner",
+        "name": "recalledBy",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "recalledBy",
+        "name": "returnedTo",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "PropertyRecalled",
@@ -93,6 +111,12 @@
         "internalType": "address",
         "name": "owner",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
     "name": "PropertyRegistered",
@@ -112,6 +136,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "contractCreationTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -149,6 +186,11 @@
             "type": "string"
           },
           {
+            "internalType": "string",
+            "name": "imageBase64",
+            "type": "string"
+          },
+          {
             "internalType": "address",
             "name": "currentOwner",
             "type": "address"
@@ -173,6 +215,11 @@
               {
                 "internalType": "bool",
                 "name": "transferredByAdmin",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "recalled",
                 "type": "bool"
               }
             ],
@@ -254,6 +301,11 @@
         "type": "string"
       },
       {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -303,6 +355,11 @@
             "internalType": "bool",
             "name": "transferredByAdmin",
             "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "recalled",
+            "type": "bool"
           }
         ],
         "internalType": "struct PropertyRegistry.TransferRecord[]",
@@ -349,19 +406,6 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "_uniqueId",
-        "type": "string"
-      }
-    ],
-    "name": "recallProperty",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
         "name": "_name",
         "type": "string"
       },
@@ -381,12 +425,35 @@
         "type": "string"
       },
       {
+        "internalType": "string",
+        "name": "_imageBase64",
+        "type": "string"
+      },
+      {
         "internalType": "address",
         "name": "_owner",
         "type": "address"
       }
     ],
     "name": "registerProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      }
+    ],
+    "name": "reverseAdminTransferAll",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

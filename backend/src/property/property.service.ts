@@ -22,10 +22,28 @@ export class PropertyService {
   }
 
   async registerProperty(dto: RegisterPropertyDto) {
-    const { adminPrivateKey, name, propertyType, serialNumber, location, owner } = dto;
+    const {
+      adminPrivateKey,
+      name,
+      propertyType,
+      serialNumber,
+      location,
+      imageBase64,
+      owner,
+    } = dto;
+
     const wallet = new ethers.Wallet(adminPrivateKey, this.provider);
     const contractWithSigner = this.contract.connect(wallet);
-    const tx = await (contractWithSigner as any).registerProperty(name, propertyType, serialNumber, location, owner);
+
+    const tx = await (contractWithSigner as any).registerProperty(
+      name,
+      propertyType,
+      serialNumber,
+      location,
+      imageBase64,
+      owner
+    );
+
     await tx.wait();
     return { message: '✅ Property registered successfully!' };
   }
@@ -38,17 +56,16 @@ export class PropertyService {
       propertyType: data[2],
       serialNumber: data[3],
       location: data[4],
-      currentOwner: data[5],
-      transferredByAdmin: data[6],
-      lastTransferTime: Number(data[7]) * 1000,
+      imageBase64: data[5],
+      currentOwner: data[6],
+      transferredByAdmin: data[7],
+      lastTransferTime: Number(data[8]) * 1000,
     };
   }
 
   async getPropertiesByOwner(ownerAddress: string) {
     const ids: string[] = await this.contract.getPropertiesByOwner(ownerAddress);
-    const props = await Promise.all(
-      ids.map(async (id) => await this.getPropertyById(id))
-    );
+    const props = await Promise.all(ids.map(async (id) => this.getPropertyById(id)));
     return props;
   }
 
@@ -60,6 +77,7 @@ export class PropertyService {
       propertyType: prop.propertyType,
       serialNumber: prop.serialNumber,
       location: prop.location,
+      imageBase64: prop.imageBase64,
       currentOwner: prop.currentOwner,
       transferredByAdmin: prop.transferredByAdmin,
       lastTransferTime: Number(prop.lastTransferTime) * 1000,
@@ -68,13 +86,12 @@ export class PropertyService {
 
   async getTransferHistory(uniqueId: string) {
     const history = await this.contract.getTransferHistory(uniqueId);
-    console.log(history);
-    
     return history.map((h: any) => ({
       previousOwner: h.previousOwner,
       newOwner: h.newOwner,
       transferTime: Number(h.transferTime) * 1000,
       transferredByAdmin: h.transferredByAdmin,
+      recalled: h.recalled,
     }));
   }
 }

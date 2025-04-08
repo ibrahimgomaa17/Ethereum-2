@@ -7,6 +7,7 @@ contract PropertyRegistry {
         address newOwner;
         uint256 transferTime;
         bool transferredByAdmin;
+        bool recalled; // NEW: track if this transfer was later recalled
     }
 
     struct Property {
@@ -15,6 +16,7 @@ contract PropertyRegistry {
         string propertyType;
         string serialNumber;
         string location;
+        string imageBase64; // NEW: image as base64 string
         address currentOwner;
         TransferRecord[] transferHistory;
         uint256 lastTransferTime;
@@ -27,11 +29,12 @@ contract PropertyRegistry {
 
     mapping(address => bool) public isAdmin;
     address public owner;
+    uint256 public contractCreationTime;
 
-    event PropertyRegistered(string uniqueId, string name, address indexed owner);
-    event OwnershipTransferred(string uniqueId, address indexed previousOwner, address indexed newOwner);
-    event PropertyRecalled(string uniqueId, address indexed previousOwner, address indexed recalledBy);
-    event AdminUpdated(address indexed admin, bool status);
+    event PropertyRegistered(string uniqueId, string name, address indexed owner, uint256 timestamp);
+    event OwnershipTransferred(string uniqueId, address indexed previousOwner, address indexed newOwner, uint256 timestamp);
+    event PropertyRecalled(string uniqueId, address indexed recalledBy, address indexed returnedTo, uint256 timestamp);
+    event AdminUpdated(address indexed admin, bool status, uint256 timestamp);
 
     modifier propertyExists(string memory _uniqueId) {
         require(bytes(properties[_uniqueId].uniqueId).length > 0, "Error: Property not found");
@@ -51,12 +54,13 @@ contract PropertyRegistry {
     constructor() {
         owner = msg.sender;
         isAdmin[msg.sender] = true;
+        contractCreationTime = block.timestamp;
     }
 
     function setAdmin(address _admin, bool _status) public {
         require(msg.sender == owner, "Error: Only contract owner can update admins");
         isAdmin[_admin] = _status;
-        emit AdminUpdated(_admin, _status);
+        emit AdminUpdated(_admin, _status, block.timestamp);
     }
 
     function registerProperty(
@@ -64,6 +68,7 @@ contract PropertyRegistry {
         string memory _propertyType,
         string memory _serialNumber,
         string memory _location,
+        string memory _imageBase64,
         address _owner
     ) public {
         string memory uniqueId = string(abi.encodePacked(_propertyType, "-", _serialNumber));
@@ -75,6 +80,7 @@ contract PropertyRegistry {
         newProperty.propertyType = _propertyType;
         newProperty.serialNumber = _serialNumber;
         newProperty.location = _location;
+        newProperty.imageBase64 = _imageBase64;
         newProperty.currentOwner = _owner;
         newProperty.lastTransferTime = block.timestamp;
         newProperty.transferredByAdmin = false;
@@ -83,13 +89,14 @@ contract PropertyRegistry {
             previousOwner: address(0),
             newOwner: _owner,
             transferTime: block.timestamp,
-            transferredByAdmin: false
+            transferredByAdmin: false,
+            recalled: false
         }));
 
         ownerProperties[_owner].push(uniqueId);
         allPropertyIds.push(uniqueId);
 
-        emit PropertyRegistered(uniqueId, _name, _owner);
+        emit PropertyRegistered(uniqueId, _name, _owner, block.timestamp);
     }
 
     function transferProperty(string memory _uniqueId, address _newOwner, bool _byAdmin)
@@ -116,13 +123,14 @@ contract PropertyRegistry {
             previousOwner: previousOwner,
             newOwner: _newOwner,
             transferTime: block.timestamp,
-            transferredByAdmin: _byAdmin
+            transferredByAdmin: _byAdmin,
+            recalled: false
         }));
 
         _removePropertyFromOwner(previousOwner, _uniqueId);
         ownerProperties[_newOwner].push(_uniqueId);
 
-        emit OwnershipTransferred(_uniqueId, previousOwner, _newOwner);
+        emit OwnershipTransferred(_uniqueId, previousOwner, _newOwner, block.timestamp);
     }
 
     function transferAllPropertiesOfUser(address _from, address _to) public onlyAdmin {
@@ -145,29 +153,58 @@ contract PropertyRegistry {
                 previousOwner: _from,
                 newOwner: _to,
                 transferTime: block.timestamp,
-                transferredByAdmin: true
+                transferredByAdmin: true,
+                recalled: false
             }));
 
             prop.currentOwner = _to;
             ownerProperties[_to].push(propertyId);
 
-            emit OwnershipTransferred(propertyId, _from, _to);
+            emit OwnershipTransferred(propertyId, _from, _to, block.timestamp);
         }
 
         delete ownerProperties[_from];
     }
 
-    function recallProperty(string memory _uniqueId) public propertyExists(_uniqueId) {
-        Property storage prop = properties[_uniqueId];
-        require(prop.transferredByAdmin, "Error: Cannot recall a property transferred by owner");
-        require(prop.transferHistory.length > 1, "Error: No previous owner to recall");
-        require(prop.transferHistory[prop.transferHistory.length - 2].newOwner == msg.sender, "Error: Only previous owner can recall");
+    function reverseAdminTransferAll(address _from, address _to) public {
+        require(msg.sender == _from, "Error: Only original owner can reverse");
+        require(_from != address(0) && _to != address(0), "Error: Invalid address");
 
-        address previousOwner = prop.transferHistory[prop.transferHistory.length - 2].newOwner;
-        prop.currentOwner = previousOwner;
-        prop.transferredByAdmin = false;
+        string[] storage toProps = ownerProperties[_to];
+        uint i = 0;
 
-        emit PropertyRecalled(_uniqueId, msg.sender, previousOwner);
+        while (i < toProps.length) {
+            string memory propertyId = toProps[i];
+            Property storage prop = properties[propertyId];
+
+            bool isReversible = prop.transferredByAdmin &&
+                prop.currentOwner == _to &&
+                prop.transferHistory.length > 0 &&
+                prop.transferHistory[prop.transferHistory.length - 1].previousOwner == _from;
+
+            if (isReversible) {
+                prop.currentOwner = _from;
+                prop.transferredByAdmin = false;
+
+                prop.transferHistory.push(TransferRecord({
+                    previousOwner: _to,
+                    newOwner: _from,
+                    transferTime: block.timestamp,
+                    transferredByAdmin: false,
+                    recalled: true
+                }));
+
+                ownerProperties[_from].push(propertyId);
+
+                // Remove from _to
+                toProps[i] = toProps[toProps.length - 1];
+                toProps.pop();
+
+                emit PropertyRecalled(propertyId, _from, _to, block.timestamp);
+            } else {
+                i++;
+            }
+        }
     }
 
     function getProperty(string memory _uniqueId)
@@ -175,13 +212,14 @@ contract PropertyRegistry {
         view
         propertyExists(_uniqueId)
         returns (
-            string memory, 
-            string memory, 
-            string memory, 
-            string memory, 
-            string memory, 
-            address, 
-            bool, 
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            string memory,
+            address,
+            bool,
             uint256
         )
     {
@@ -192,6 +230,7 @@ contract PropertyRegistry {
             prop.propertyType,
             prop.serialNumber,
             prop.location,
+            prop.imageBase64,
             prop.currentOwner,
             prop.transferredByAdmin,
             prop.lastTransferTime
