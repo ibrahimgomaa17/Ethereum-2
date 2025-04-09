@@ -8,14 +8,14 @@ export interface User {
 
 export interface Asset {
   lastTransferTime: string | number | Date;
-  transferredByAdmin: any;
+  transferredByAdmin: boolean;
   uniqueId: string;
   name: string;
   propertyType: string;
   serialNumber: string;
   location: string;
+  imageUrl: string; // ✅ New: loaded from server after base64 upload
   currentOwner: string;
-  adminPrivateKey: string;
 }
 
 export interface CreateAsset {
@@ -25,6 +25,7 @@ export interface CreateAsset {
   serialNumber: string;
   location: string;
   owner: string;
+  imageBase64?: string; // ✅ Optional base64 input for image upload
 }
 
 export interface TransferAssetPayload {

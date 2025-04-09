@@ -7,7 +7,7 @@ contract PropertyRegistry {
         address newOwner;
         uint256 transferTime;
         bool transferredByAdmin;
-        bool recalled; // NEW: track if this transfer was later recalled
+        bool recalled;
     }
 
     struct Property {
@@ -16,7 +16,7 @@ contract PropertyRegistry {
         string propertyType;
         string serialNumber;
         string location;
-        string imageBase64; // NEW: image as base64 string
+        string imageUrl; // Changed from base64 to URL and made optional
         address currentOwner;
         TransferRecord[] transferHistory;
         uint256 lastTransferTime;
@@ -68,7 +68,7 @@ contract PropertyRegistry {
         string memory _propertyType,
         string memory _serialNumber,
         string memory _location,
-        string memory _imageBase64,
+        string memory _imageUrl,
         address _owner
     ) public {
         string memory uniqueId = string(abi.encodePacked(_propertyType, "-", _serialNumber));
@@ -80,7 +80,7 @@ contract PropertyRegistry {
         newProperty.propertyType = _propertyType;
         newProperty.serialNumber = _serialNumber;
         newProperty.location = _location;
-        newProperty.imageBase64 = _imageBase64;
+        newProperty.imageUrl = _imageUrl; // Can be empty
         newProperty.currentOwner = _owner;
         newProperty.lastTransferTime = block.timestamp;
         newProperty.transferredByAdmin = false;
@@ -196,7 +196,6 @@ contract PropertyRegistry {
 
                 ownerProperties[_from].push(propertyId);
 
-                // Remove from _to
                 toProps[i] = toProps[toProps.length - 1];
                 toProps.pop();
 
@@ -230,23 +229,42 @@ contract PropertyRegistry {
             prop.propertyType,
             prop.serialNumber,
             prop.location,
-            prop.imageBase64,
+            prop.imageUrl,
             prop.currentOwner,
             prop.transferredByAdmin,
             prop.lastTransferTime
         );
     }
 
+    function hasImage(string memory _uniqueId)
+        public
+        view
+        propertyExists(_uniqueId)
+        returns (bool)
+    {
+        return bytes(properties[_uniqueId].imageUrl).length > 0;
+    }
+
     function getPropertiesByOwner(address _owner) public view returns (string[] memory) {
         return ownerProperties[_owner];
     }
 
-    function canTransferProperty(string memory _uniqueId) public view propertyExists(_uniqueId) returns (bool) {
+    function canTransferProperty(string memory _uniqueId)
+        public
+        view
+        propertyExists(_uniqueId)
+        returns (bool)
+    {
         Property storage prop = properties[_uniqueId];
         return !prop.transferredByAdmin || block.timestamp >= prop.lastTransferTime + 365 days;
     }
 
-    function getTransferHistory(string memory _uniqueId) public view propertyExists(_uniqueId) returns (TransferRecord[] memory) {
+    function getTransferHistory(string memory _uniqueId)
+        public
+        view
+        propertyExists(_uniqueId)
+        returns (TransferRecord[] memory)
+    {
         return properties[_uniqueId].transferHistory;
     }
 

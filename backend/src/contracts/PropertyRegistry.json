@@ -187,7 +187,7 @@
           },
           {
             "internalType": "string",
-            "name": "imageBase64",
+            "name": "imageUrl",
             "type": "string"
           },
           {
@@ -373,6 +373,25 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "_uniqueId",
+        "type": "string"
+      }
+    ],
+    "name": "hasImage",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -426,7 +445,7 @@
       },
       {
         "internalType": "string",
-        "name": "_imageBase64",
+        "name": "_imageUrl",
         "type": "string"
       },
       {

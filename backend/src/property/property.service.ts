@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
 import propertyRegistryABI from '../contracts/PropertyRegistry.json';
 import { RegisterPropertyDto } from './dto/register-property.dto';
 
@@ -21,6 +24,29 @@ export class PropertyService {
     this.contract = new ethers.Contract(address, propertyRegistryABI, this.provider);
   }
 
+  private saveImageLocally(base64: string): string {
+    const matches = base64.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+    if (!matches) {
+      throw new Error('Invalid base64 image format');
+    }
+
+    const mimeType = matches[1];
+    const extension = mimeType.split('/')[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    const filename = `${crypto.randomUUID()}.${extension}`;
+    const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads');
+    const filePath = path.join(uploadDir, filename);
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    fs.writeFileSync(filePath, buffer);
+
+    return `/uploads/${filename}`; // This will be served statically
+  }
+
   async registerProperty(dto: RegisterPropertyDto) {
     const {
       adminPrivateKey,
@@ -32,6 +58,8 @@ export class PropertyService {
       owner,
     } = dto;
 
+    const imageUrl = imageBase64 ? this.saveImageLocally(imageBase64) : '';
+
     const wallet = new ethers.Wallet(adminPrivateKey, this.provider);
     const contractWithSigner = this.contract.connect(wallet);
 
@@ -40,7 +68,7 @@ export class PropertyService {
       propertyType,
       serialNumber,
       location,
-      imageBase64,
+      imageUrl,
       owner
     );
 
@@ -56,7 +84,7 @@ export class PropertyService {
       propertyType: data[2],
       serialNumber: data[3],
       location: data[4],
-      imageBase64: data[5],
+      imageUrl: data[5], // Renamed
       currentOwner: data[6],
       transferredByAdmin: data[7],
       lastTransferTime: Number(data[8]) * 1000,
@@ -65,7 +93,7 @@ export class PropertyService {
 
   async getPropertiesByOwner(ownerAddress: string) {
     const ids: string[] = await this.contract.getPropertiesByOwner(ownerAddress);
-    const props = await Promise.all(ids.map(async (id) => this.getPropertyById(id)));
+    const props = await Promise.all(ids.map((id) => this.getPropertyById(id)));
     return props;
   }
 
@@ -77,7 +105,7 @@ export class PropertyService {
       propertyType: prop.propertyType,
       serialNumber: prop.serialNumber,
       location: prop.location,
-      imageBase64: prop.imageBase64,
+      imageUrl: prop.imageUrl, // Renamed
       currentOwner: prop.currentOwner,
       transferredByAdmin: prop.transferredByAdmin,
       lastTransferTime: Number(prop.lastTransferTime) * 1000,
