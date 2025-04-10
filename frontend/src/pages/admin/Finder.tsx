@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAdmin } from "@/services/admin";
 import { User, Asset } from "@/services/admin";
-import AssetHistoryDrawer from "./AssetHistoryDrawer";
 
 // UI components...
 import {
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
+import AssetHistoryDrawer from "../shared/AssetHistoryDrawer";
 
 const Finder = () => {
   const { lookupEntityById } = useAdmin();

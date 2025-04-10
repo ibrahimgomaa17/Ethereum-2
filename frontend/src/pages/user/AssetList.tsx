@@ -23,6 +23,7 @@ import { Separator } from "@radix-ui/react-separator";
 import { useState, useEffect } from "react";
 import TransferAssetDrawer from "./TransferAssetDrawer";
 import { toast } from "sonner";
+import AssetHistoryDrawer from "../shared/AssetHistoryDrawer";
 
 interface AssetManagementProps {
   user: User;
@@ -35,15 +36,15 @@ function AssetList({ user }: AssetManagementProps) {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [transferOpen, setTransferOpen] = useState(false);
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
-
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [selectedAssetId, setSelectedAssetId] = useState("");
   const searchQuery = (term: string) => setSearch(term);
 
   const loadAssets = async () => {
     if (!user?.walletAddress) return;
     setLoading(true);
     const { currentAssets, previouslyOwnedAssets } = await fetchUserAssets(user.walletAddress);
-debugger
+    debugger
     const filterAssets = (assets: Asset[]) =>
       assets.filter(asset =>
         JSON.stringify(asset).toLowerCase().includes(search.toLowerCase())
@@ -62,6 +63,12 @@ debugger
     setSelectedAssetId(assetId);
     setTransferOpen(true);
   };
+  const handleHistoryClick = (assetId: string) => {
+    setSelectedAssetId(assetId);
+    setOpenDrawer(true);
+  };
+
+
 
   const handleRecallAssets = async () => {
     if (!user?.walletAddress) return;
@@ -122,7 +129,7 @@ debugger
               <TableCell>{new Date(asset.lastTransferTime).toLocaleString()}</TableCell>
               {isCurrent && (
                 <TableCell className="flex gap-2">
-                  <Button size="sm" className="text-[.8rem]">History</Button>
+                  <Button onClick={() => handleHistoryClick(asset.uniqueId)} size="sm" className="text-[.8rem]">History</Button>
                   <Button
                     size="sm"
                     variant="secondary"
@@ -190,6 +197,11 @@ debugger
           </div>
         </div>
       </div>
+      <AssetHistoryDrawer
+        openDrawer={openDrawer}
+        setOpenDrawer={setOpenDrawer}
+        assetId={selectedAssetId}
+      />
     </>
   );
 }
