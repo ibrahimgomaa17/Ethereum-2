@@ -144,7 +144,7 @@ export const useAdmin = () => {
 
   return {
     fetchUsers,
-    fetchAssets,
+    fetchAssets,  
     registerAsset,
     transferProperty,
     transferAllAssets,

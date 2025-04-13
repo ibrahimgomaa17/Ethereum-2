@@ -24,13 +24,14 @@ import { useState, useEffect } from "react";
 import TransferAssetDrawer from "./TransferAssetDrawer";
 import { toast } from "sonner";
 import AssetHistoryDrawer from "../shared/AssetHistoryDrawer";
+import { RecallAssetDrawer } from "./RecallAssetDrawer";
 
 interface AssetManagementProps {
   user: User;
 }
 
 function AssetList({ user }: AssetManagementProps) {
-  const { fetchUserAssets, recallPreviouslyOwnedAssets } = useUser();
+  const { fetchUserAssets } = useUser();
   const [currentAssets, setCurrentAssets] = useState<Asset[]>([]);
   const [previousAssets, setPreviousAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,13 +39,13 @@ function AssetList({ user }: AssetManagementProps) {
   const [transferOpen, setTransferOpen] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [selectedAssetId, setSelectedAssetId] = useState("");
+  const [recallOpen, setRecallOpen] = useState(false);
   const searchQuery = (term: string) => setSearch(term);
 
   const loadAssets = async () => {
     if (!user?.walletAddress) return;
     setLoading(true);
     const { currentAssets, previouslyOwnedAssets } = await fetchUserAssets(user.walletAddress);
-    debugger
     const filterAssets = (assets: Asset[]) =>
       assets.filter(asset =>
         JSON.stringify(asset).toLowerCase().includes(search.toLowerCase())
@@ -70,18 +71,9 @@ function AssetList({ user }: AssetManagementProps) {
 
 
 
-  const handleRecallAssets = async () => {
-    if (!user?.walletAddress) return;
-
-    const { message, error } = await recallPreviouslyOwnedAssets(user.walletAddress);
-    if (message) {
-      toast.success(message);
-      await loadAssets();
-    } else {
-      toast.error(error || "Failed to recall assets.");
-    }
+  const handleRecallAssets = () => {
+    setRecallOpen(true);
   };
-
   const renderAssetTable = (
     assets: Asset[],
     title: string,
@@ -201,6 +193,13 @@ function AssetList({ user }: AssetManagementProps) {
         openDrawer={openDrawer}
         setOpenDrawer={setOpenDrawer}
         assetId={selectedAssetId}
+      />
+
+      <RecallAssetDrawer
+        open={recallOpen}
+        user={user}
+        setOpen={setRecallOpen}
+        onTransferComplete={loadAssets}
       />
     </>
   );

@@ -10,6 +10,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { Label } from '@/components/ui/label'; // Add this line
 import { toast } from 'sonner';
 
 const PROPERTY_TYPES = ['Car', 'House', 'Land', 'Electronic Device', 'Furniture', 'Other'];
@@ -30,7 +31,7 @@ export const CreateAssetDrawer = ({ user, createAsset, openDrawer, setOpenDrawer
     serialNumber: '',
     location: '',
     owner: '',
-    imageBase64: '', // NEW
+    imageBase64: '',
   });
 
   const handleCreateAsset = async () => {
@@ -45,7 +46,7 @@ export const CreateAssetDrawer = ({ user, createAsset, openDrawer, setOpenDrawer
         serialNumber: '',
         location: '',
         owner: '',
-        imageBase64: '', // Reset
+        imageBase64: '',
       });
     } else if ('error' in response) {
       toast.error(response.error);
@@ -67,13 +68,20 @@ export const CreateAssetDrawer = ({ user, createAsset, openDrawer, setOpenDrawer
   };
 
   const renderDynamicFields = () => {
-    switch (newAsset.propertyType) {
-      case 'House':
-      case 'Land':
-        return <Input placeholder="Address" value={newAsset.location} onChange={e => setNewAsset({ ...newAsset, location: e.target.value })} />;
-      default:
-        return null;
+    if (['House', 'Land'].includes(newAsset.propertyType)) {
+      return (
+        <div className="space-y-2">
+          <Label htmlFor="location">Address</Label>
+          <Input
+            id="location"
+            placeholder="Enter property address"
+            value={newAsset.location}
+            onChange={e => setNewAsset({ ...newAsset, location: e.target.value })}
+          />
+        </div>
+      );
     }
+    return null;
   };
 
   return (
@@ -83,27 +91,73 @@ export const CreateAssetDrawer = ({ user, createAsset, openDrawer, setOpenDrawer
           <DrawerTitle>Create a New Asset</DrawerTitle>
         </DrawerHeader>
         <div className="p-4 space-y-4">
-          <Input placeholder="Name" value={newAsset.name} onChange={e => setNewAsset({ ...newAsset, name: e.target.value })} />
+          <div className="space-y-2">
+            <Label htmlFor="name">Asset Name</Label>
+            <Input
+              id="name"
+              placeholder="Name"
+              value={newAsset.name}
+              onChange={e => setNewAsset({ ...newAsset, name: e.target.value })}
+            />
+          </div>
 
-          <Select onValueChange={value => setNewAsset({ ...newAsset, propertyType: value })}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Property Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {PROPERTY_TYPES.map(type => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <Label>Property Type</Label>
+            <Select onValueChange={value => setNewAsset({ ...newAsset, propertyType: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Property Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROPERTY_TYPES.map(type => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {renderDynamicFields()}
-          <Input placeholder="Serial Number / Unique Id" value={newAsset.serialNumber} onChange={e => setNewAsset({ ...newAsset, serialNumber: e.target.value })} />
-          <Input placeholder="Owner" value={newAsset.owner} onChange={e => setNewAsset({ ...newAsset, owner: e.target.value })} />
-          <Input placeholder="Admin Private Authority Signature" value={newAsset.adminPrivateKey} onChange={e => setNewAsset({ ...newAsset, adminPrivateKey: e.target.value })} />
-          
-          {/* NEW: Image upload */}
-          <Input type="file" accept="image/*" onChange={handleImageUpload} />
+
+          <div className="space-y-2">
+            <Label htmlFor="serialNumber">Serial Number / Unique ID</Label>
+            <Input
+              id="serialNumber"
+              placeholder="Serial Number / Unique ID"
+              value={newAsset.serialNumber}
+              onChange={e => setNewAsset({ ...newAsset, serialNumber: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="owner">Owner Address</Label>
+            <Input
+              id="owner"
+              placeholder="0x..."
+              value={newAsset.owner}
+              onChange={e => setNewAsset({ ...newAsset, owner: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="adminKey">Admin Private Key</Label>
+            <Input
+              id="adminKey"
+              placeholder="Admin Private Authority Signature"
+              value={newAsset.adminPrivateKey}
+              onChange={e => setNewAsset({ ...newAsset, adminPrivateKey: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="imageUpload">Upload Image (optional)</Label>
+            <Input
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          </div>
         </div>
+
         <DrawerFooter>
           <Button onClick={handleCreateAsset}>Submit</Button>
         </DrawerFooter>

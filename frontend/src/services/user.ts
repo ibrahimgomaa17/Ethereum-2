@@ -38,7 +38,7 @@ export const useUser = () => {
     uniqueId: string;
     toAddress: string;
     privateKey: string;
-  }): Promise<{ message?: string; error?: string }> => {
+  }): Promise<{ message?: string; error?: string } | any> => {
     try {
       const response = await http("/user/property/transfer", {
         method: "POST",
@@ -48,8 +48,7 @@ export const useUser = () => {
           privateKey,
         }),
       });
-
-      return { message: response.message };
+      return { response };
     } catch (error: any) {
       return { error: error.message || "Transfer failed" };
     }
@@ -59,17 +58,21 @@ export const useUser = () => {
    * Recall previously owned assets back to the original user.
    */
   const recallPreviouslyOwnedAssets = async (
-    fromAddress: string
+    ownerAddress: string,
+    privateKey: string
   ): Promise<{ message?: string; error?: string }> => {
-    if (!fromAddress) {
-      console.warn("No fromAddress provided to recall assets.");
-      return { error: "Missing address" };
+    if (!ownerAddress || !privateKey) {
+      console.warn("Missing required data to recall assets.");
+      return { error: "Missing address or private key" };
     }
 
     try {
       const response = await http("/user/property/recall", {
         method: "POST",
-        body: JSON.stringify({ fromAddress }),
+        body: JSON.stringify({
+          ownerAddress,
+          privateKey,
+        }),
       });
 
       return { message: response.message };
@@ -77,6 +80,7 @@ export const useUser = () => {
       return { error: error.message || "Recall failed" };
     }
   };
+
 
   /**
    * Fetch a user by ID.

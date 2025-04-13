@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAdmin } from '@/services/admin';
 import { toast } from 'sonner';
+import { Label } from '@/components/ui/label'; // Make sure this is available in your components
 
 interface TransferAssetsDrawerProps {
   openDrawer: boolean;
@@ -68,24 +69,42 @@ export const TransferAssetsDrawer = ({
           <DrawerTitle>Transfer All Assets</DrawerTitle>
         </DrawerHeader>
 
-        <Input
-          placeholder="Current Owner Address"
-          value={transferData.fromAddress}
-          onChange={e => setTransferData({ ...transferData, fromAddress: e.target.value })}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="fromAddress">Current Owner Address</Label>
+          <Input
+            id="fromAddress"
+            placeholder="0x..."
+            value={transferData.fromAddress}
+            onChange={e =>
+              setTransferData({ ...transferData, fromAddress: e.target.value })
+            }
+          />
+        </div>
 
-        <Input
-          placeholder="New Owner Address"
-          value={transferData.newOwnerAddress}
-          onChange={e => setTransferData({ ...transferData, newOwnerAddress: e.target.value })}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="newOwnerAddress">New Owner Address</Label>
+          <Input
+            id="newOwnerAddress"
+            placeholder="0x..."
+            value={transferData.newOwnerAddress}
+            onChange={e =>
+              setTransferData({ ...transferData, newOwnerAddress: e.target.value })
+            }
+          />
+        </div>
 
-        <Input
-          placeholder="Admin's Signature Key"
-          type="password"
-          value={transferData.senderPrivateKey}
-          onChange={e => setTransferData({ ...transferData, senderPrivateKey: e.target.value })}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="adminKey">Admin's Private Key</Label>
+          <Input
+            id="adminKey"
+            type="password"
+            placeholder="Private key"
+            value={transferData.senderPrivateKey}
+            onChange={e =>
+              setTransferData({ ...transferData, senderPrivateKey: e.target.value })
+            }
+          />
+        </div>
 
         <DrawerFooter>
           <Button onClick={handleTransfer}>Transfer All</Button>

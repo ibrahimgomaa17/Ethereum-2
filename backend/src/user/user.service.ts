@@ -261,40 +261,45 @@ export class UserService {
         errorMessage += `: ${error.message || error.code || 'Unknown error'}`;
       }
     
-      console.error('Transfer Error:', {
+      return {
         uniqueId,
         toAddress,
         fromAddress: new ethers.Wallet(fromPrivateKey).address,
         error: error.message,
         full: error,
         stack: error.stack
-      });
+      };
     
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST); // or HttpStatus.FORBIDDEN, etc.
     }
     
   }
   async getOwnershipHistory(uniqueId: string): Promise<string[]> {
     return this.propertyRegistry.getOwnershipHistory(uniqueId);
   }
+
+
   async recallPreviouslyOwnedAssets(
-    fromAddress: string, // current owner (Bob)
-    toAddress: string,   // recalling user (Alice)
+    userAddress: string,
     userPrivateKey: string
-  ) {
+  ): Promise<string> {
     const userWallet = new ethers.Wallet(userPrivateKey, this.provider);
     const contractWithSigner = this.propertyRegistry.connect(userWallet);
-
-    // Optional: customizable minimum balance to cover gas
+  
+    // Ensure the wallet address matches the claimed address
+    if (userWallet.address.toLowerCase() !== userAddress.toLowerCase()) {
+      throw new Error("Private key does not match the provided address");
+    }
+  
+    // Ensure the user has enough ETH for gas
     const requiredBalance = ethers.parseEther("0.01");
     const userBalance = await this.provider.getBalance(userWallet.address);
-
+  
     if (userBalance < requiredBalance) {
       const funder = new ethers.Wallet(
         this.config.get<string>('POA_ADMIN_PRIVATE_KEY')!,
         this.provider
       );
-
+  
       const fundAmount = requiredBalance - userBalance;
       const tx = await funder.sendTransaction({
         to: userWallet.address,
@@ -302,13 +307,40 @@ export class UserService {
       });
       await tx.wait();
     }
-
-    // Proceed with recall
-    const tx = await (contractWithSigner as any).reverseAdminTransferAll(fromAddress, toAddress);
-    await tx.wait();
-
-    return `✅ Assets recalled from ${fromAddress} to ${toAddress}`;
+  
+    // Fetch all properties on the contract
+    const allProperties = await this.propertyRegistry.getAllProperties();
+    const ownersToRecallFrom = new Set<string>();
+  
+    for (const prop of allProperties) {
+      if (!prop.transferredByAdmin || prop.currentOwner.toLowerCase() === userAddress.toLowerCase()) {
+        continue; // Not eligible for recall
+      }
+  
+      const history = await this.propertyRegistry.getTransferHistory(prop.uniqueId);
+      if (history.length === 0) continue;
+  
+      const lastTransfer = history[history.length - 1];
+      if (
+        lastTransfer.transferredByAdmin &&
+        lastTransfer.previousOwner.toLowerCase() === userAddress.toLowerCase()
+      ) {
+        ownersToRecallFrom.add(prop.currentOwner);
+      }
+    }
+  
+    if (ownersToRecallFrom.size === 0) {
+      throw new Error("No admin-transferred properties found to recall.");
+    }
+  
+    for (const currentOwner of ownersToRecallFrom) {
+      const tx = await (contractWithSigner as any).reverseAdminTransferAll(userAddress, currentOwner);
+      await tx.wait();
+    }
+  
+    return `✅ Successfully recalled admin-transferred assets for ${userAddress}`;
   }
 
+  
 
 }

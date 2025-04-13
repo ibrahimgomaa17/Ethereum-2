@@ -91,7 +91,7 @@ export class UserController {
   }
   @Post('property/recall')
   async recallPreviouslyOwnedAssets(@Body() dto: RecallAssetsDto) {
-    return this.userService.recallPreviouslyOwnedAssets(dto.toAddress, dto.fromAddress, dto.privateKey);
+    return this.userService.recallPreviouslyOwnedAssets(dto.ownerAddress, dto.privateKey);
   }
   
 }
