@@ -13,6 +13,7 @@ import AssetList from "./pages/user/AssetList";
 import UserDashboard from "./pages/user/UserDashboard";
 import AdminManagement from "./pages/admin/AdminManagement";
 import Finder from "./pages/admin/Finder";
+import SearchResults from "./pages/SearchResults"; // Import the SearchResults page
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
@@ -78,6 +79,7 @@ function AppContent({
               <Route path="" element={<UserDashboard />} />
               <Route path="assets" element={<AssetList user={user} />} />
             </Route>
+            <Route path="/search-results" element={<SearchResults  token={token} user={user} onLogout={onLogout} />} /> {/* Add SearchResults route */}
           </Routes>
         </main>
       </div>
