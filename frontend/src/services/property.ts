@@ -16,6 +16,7 @@ export interface TransferRecord {
   newOwner: string;
   transferTime: number;
   transferredByAdmin: boolean;
+  recalled: boolean
 }
 
 export interface RegisterPropertyInput {
