@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import {
   BarChart as RechartsBarChart,
   LineChart as RechartsLineChart,
@@ -20,9 +21,10 @@ interface ChartProps {
   className?: string
 }
 
+// ✅ BarChart with default height
 export function BarChart({ data, children, className }: ChartProps) {
   return (
-    <div className={className}>
+    <div className={cn("w-full h-[300px]", className)}>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsBarChart data={data}>
           {children}
@@ -32,9 +34,10 @@ export function BarChart({ data, children, className }: ChartProps) {
   )
 }
 
+// ✅ LineChart with default height
 export function LineChart({ data, children, className }: ChartProps) {
   return (
-    <div className={className}>
+    <div className={cn("w-full h-[300px]", className)}>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsLineChart data={data}>
           {children}
@@ -44,9 +47,10 @@ export function LineChart({ data, children, className }: ChartProps) {
   )
 }
 
+// ✅ PieChart with default height
 export function PieChart({ data, children, className }: ChartProps) {
   return (
-    <div className={className}>
+    <div className={cn("w-full h-[300px]", className)}>
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPieChart>
           {children}

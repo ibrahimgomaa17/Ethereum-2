@@ -18,7 +18,7 @@ import {
   Legend,
   ResponsiveContainer,
   Cell
-} from "@/components/ui/Charts"
+} from "@/components/ui/charts"
 
 // Dummy data
 const userGrowthData = [

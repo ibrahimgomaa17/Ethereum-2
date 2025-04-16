@@ -13,10 +13,11 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { GalleryVerticalEnd, ChevronDown, ChevronRight } from "lucide-react";
+import { GalleryVerticalEnd, ChevronDown, ChevronRight, Gem, LayoutDashboard, Users, Settings, FileText, Shield } from "lucide-react";
 import { NavUser } from "./nav-user";
 import { User } from "@/services/admin";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface AppSidebarProps {
   user: User;
@@ -36,24 +37,36 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
     }));
   };
 
+  // Default icons for common menu items
+  const getDefaultIcon = (title: string) => {
+    const iconMap: Record<string, React.ComponentType<any>> = {
+      'Dashboard': LayoutDashboard,
+      'Assets': Gem,
+      'Users': Users,
+      'Documents': FileText,
+      'Settings': Settings,
+      'Admin': Shield
+    };
+    return iconMap[title] || Gem;
+  };
+
   return (
-    <Sidebar className={cn("border-r border-gray-200 bg-white/95 backdrop-blur-sm", className)}>
+    <Sidebar className={cn("border-r border-muted bg-background/95 backdrop-blur-sm", className)}>
       {/* Brand Header */}
-      <SidebarHeader className="px-4 py-5 border-b border-gray-100">
+      <SidebarHeader className="px-6 py-5 border-b">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
-              size="lg" 
               asChild
-              className="hover:bg-gray-50 rounded-lg transition-colors"
+              className="hover:bg-accent rounded-lg transition-colors p-0"
             >
-              <NavLink to="#" className="flex items-center gap-3">
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-sm">
+              <NavLink to="#" className="flex items-center gap-3 w-full">
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
                   <GalleryVerticalEnd className="size-5" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-bold text-gray-900">Blockchain Portal</span>
-                  <span className="text-xs text-gray-500">Asset Management</span>
+                  <span className="font-bold text-lg">AssetChain</span>
+                  <span className="text-xs text-muted-foreground">v2.4.0</span>
                 </div>
               </NavLink>
             </SidebarMenuButton>
@@ -62,14 +75,23 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
       </SidebarHeader>
 
       {/* Navigation Content */}
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-3 py-4">
         {navLinks.map((group) => (
-          <SidebarGroup key={group.title} className="mb-2">
+          <SidebarGroup key={group.title} className="mb-1">
             <SidebarGroupLabel 
-              className="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer"
+              className={cn(
+                "flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors",
+                "text-muted-foreground hover:text-foreground hover:bg-accent",
+                expandedGroups[group.title] ? "bg-accent text-foreground" : ""
+              )}
               onClick={() => toggleGroup(group.title)}
             >
-              <span>{group.title}</span>
+              <div className="flex items-center gap-2">
+                {group.icon && (
+                  <group.icon className="h-4 w-4" />
+                )}
+                <span>{group.title}</span>
+              </div>
               {expandedGroups[group.title] ? (
                 <ChevronDown className="h-4 w-4" />
               ) : (
@@ -78,14 +100,15 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
             </SidebarGroupLabel>
             
             <SidebarGroupContent className={cn(
-              "overflow-hidden transition-all duration-300",
-              expandedGroups[group.title] ? "max-h-96" : "max-h-0"
+              "overflow-hidden transition-all duration-200",
+              expandedGroups[group.title] ? "max-h-96 py-1" : "max-h-0"
             )}>
               <SidebarMenu>
                 {group.items.map((item) => {
                   const isActive =
                     location.pathname === `/${item.url}` ||
                     (item.url === "admin" && location.pathname === "/admin/");
+                  const IconComponent = item.icon || getDefaultIcon(item.title);
 
                   return (
                     <SidebarMenuItem key={item.title} className="px-1">
@@ -93,24 +116,29 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
                         asChild 
                         isActive={isActive}
                         className={cn(
-                          "px-3 py-2 rounded-lg transition-colors",
+                          "px-3 py-2.5 rounded-lg transition-colors group",
                           isActive 
-                            ? "bg-purple-50 text-purple-600 font-medium" 
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            ? "bg-primary/10 text-primary font-medium" 
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
                         )}
                       >
                         <NavLink to={`/${item.url}`} className="flex items-center gap-3">
-                          {item.icon && (
-                            <div className={cn(
-                              "flex aspect-square size-8 items-center justify-center rounded-md",
-                              isActive 
-                                ? "bg-purple-100 text-purple-600" 
-                                : "bg-gray-100 text-gray-500"
-                            )}>
-                              <item.icon className="size-4" />
-                            </div>
-                          )}
-                          <span>{item.title}</span>
+                          <div className={cn(
+                            "flex aspect-square size-8 items-center justify-center rounded-md transition-colors",
+                            isActive 
+                              ? "bg-primary text-primary-foreground" 
+                              : "bg-accent text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                          )}>
+                            <IconComponent className="size-4" />
+                          </div>
+                          <div className="flex items-center justify-between flex-1">
+                            <span>{item.title}</span>
+                            {item.badge && (
+                              <Badge variant={item.badge.variant} className="text-xs">
+                                {item.badge.text}
+                              </Badge>
+                            )}
+                          </div>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -123,7 +151,7 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
       </SidebarContent>
 
       {/* User Footer */}
-      <SidebarFooter className="border-t border-gray-100 px-4 py-4">
+      <SidebarFooter className="border-t px-4 py-4 bg-muted/20">
         <NavUser user={user} onLogout={onLogout} />
       </SidebarFooter>
       
