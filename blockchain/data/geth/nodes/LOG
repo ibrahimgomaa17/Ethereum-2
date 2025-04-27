@@ -1,36 +1,6 @@
-=============== Apr 13, 2025 (+03) ===============
-07:08:23.445438 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-07:08:23.458547 db@open opening
-07:08:23.459209 version@stat F·[] S·0B[] Sc·[]
-07:08:23.467681 db@janitor F·2 G·0
-07:08:23.467712 db@open done T·9.142584ms
-=============== Apr 14, 2025 (+03) ===============
-06:48:03.983755 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-06:48:03.983948 version@stat F·[] S·0B[] Sc·[]
-06:48:03.984065 db@open opening
-06:48:03.984111 journal@recovery F·1
-06:48:03.985022 journal@recovery recovering @1
-06:48:03.990174 memdb@flush created L0@2 N·2 S·181B "loc..seq,v2":"version,v1"
-06:48:03.990621 version@stat F·[1] S·181B[181B] Sc·[0.25]
-06:48:04.006671 db@janitor F·3 G·0
-06:48:04.006712 db@open done T·22.640583ms
-=============== Apr 14, 2025 (+03) ===============
-15:45:55.922137 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-15:45:55.922929 version@stat F·[1] S·181B[181B] Sc·[0.25]
-15:45:55.922942 db@open opening
-15:45:55.922991 journal@recovery F·1
-15:45:55.924123 journal@recovery recovering @3
-15:45:55.927786 memdb@flush created L0@5 N·1 S·162B "loc..seq,v4":"loc..seq,v4"
-15:45:55.928744 version@stat F·[2] S·343B[343B] Sc·[0.50]
-15:45:55.943376 db@janitor F·4 G·0
-15:45:55.943415 db@open done T·20.467042ms
-=============== Apr 16, 2025 (+03) ===============
-07:09:49.265509 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-07:09:49.265935 version@stat F·[2] S·343B[343B] Sc·[0.50]
-07:09:49.265948 db@open opening
-07:09:49.265997 journal@recovery F·1
-07:09:49.267010 journal@recovery recovering @6
-07:09:49.272192 memdb@flush created L0@8 N·1 S·162B "loc..seq,v6":"loc..seq,v6"
-07:09:49.272720 version@stat F·[3] S·505B[505B] Sc·[0.75]
-07:09:49.290982 db@janitor F·5 G·0
-07:09:49.291028 db@open done T·25.073292ms
+=============== Apr 24, 2025 (+03) ===============
+07:56:59.518086 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+07:56:59.529704 db@open opening
+07:56:59.530219 version@stat F·[] S·0B[] Sc·[]
+07:56:59.533854 db@janitor F·2 G·0
+07:56:59.533880 db@open done T·4.154709ms

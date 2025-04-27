@@ -159,6 +159,64 @@ export class AdminService {
     return { user, assets };
   }
 
+
+  async getDashboardMetrics() {
+    const allPropertiesRaw = await this.propertyRegistry.getAllProperties();
+  
+    const uniqueUsersSet = new Set<string>();
+    const propertyRegistrations: Record<string, number> = {};
+    const transactions: Record<string, number> = {};
+    const assetTypes: Record<string, number> = {};
+  
+    for (const prop of allPropertiesRaw) {
+      const owner = prop.currentOwner.toLowerCase();
+      uniqueUsersSet.add(owner);
+  
+      const timestampMs = Number(prop.lastTransferTime) * 1000;
+      const date = new Date(timestampMs);
+  
+      // ✅ Use day-based key instead of month-based
+      const dayKey = `${date.getFullYear()}-${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`; // e.g. "2025-04-21"
+  
+      // Count asset types
+      assetTypes[prop.propertyType] = (assetTypes[prop.propertyType] || 0) + 1;
+  
+      // Count property registration (by day)
+      propertyRegistrations[dayKey] = (propertyRegistrations[dayKey] || 0) + 1;
+  
+      // Count transactions if not admin transfer (by day)
+      if (!prop.transferredByAdmin) {
+        transactions[dayKey] = (transactions[dayKey] || 0) + 1;
+      }
+    }
+  
+    const totalUsers = uniqueUsersSet.size;
+    const totalAssets = allPropertiesRaw.length;
+    const totalTransactions = Object.values(transactions).reduce((a, b) => a + b, 0);
+  
+    const formatChartData = (data: Record<string, number>) =>
+      Object.entries(data)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, value]) => ({ name, value }));
+  
+    return {
+      metrics: {
+        totalUsers,
+        totalAssets,
+        totalTransactions,
+      },
+      charts: {
+        assetDistribution: Object.entries(assetTypes).map(([name, value]) => ({ name, value })),
+        registrationsByTime: formatChartData(propertyRegistrations),
+        transactionsByTime: formatChartData(transactions),
+      },
+    };
+  }
+  
+
+  
   async transferPropertyToUser(
     propertyId: string,
     newOwnerAddress: string,

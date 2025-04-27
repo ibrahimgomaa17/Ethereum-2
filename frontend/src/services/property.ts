@@ -11,6 +11,7 @@ export interface Property {
   lastTransferTime: string | number;
 }
 
+
 export interface TransferRecord {
   previousOwner: string;
   newOwner: string;
@@ -51,6 +52,9 @@ export const useProperty = () => {
       return null;
     }
   };
+
+
+
 
   const getAllProperties = async (): Promise<Property[]> => {
     try {

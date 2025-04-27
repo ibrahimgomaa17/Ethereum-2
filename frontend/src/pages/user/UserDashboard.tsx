@@ -1,264 +1,171 @@
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@radix-ui/react-separator";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { 
-  Package,
-  History,
-  ArrowRight,
-  RefreshCw,
-  Download,
-  Wallet,
-  Shield,
-  BarChart4,
-  Clock,
-  FileText
-} from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Package, ArrowLeftRight, History } from 'lucide-react';
 import {
-  BarChart,
   LineChart,
-  Bar,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  ResponsiveContainer
-} from "@/components/ui/charts";
-import { Badge } from "@/components/ui/badge";
+  ResponsiveContainer,
+} from '@/components/ui/charts';
+import { Badge } from '@/components/ui/badge';
+import { useUser } from '@/services/user';
+import { toast } from 'sonner';
+import { User } from '@/services/admin';
 
-// Dummy data
-const assetActivityData = [
-  { name: 'Jan', transfers: 2 },
-  { name: 'Feb', transfers: 3 },
-  { name: 'Mar', transfers: 1 },
-  { name: 'Apr', transfers: 4 },
-  { name: 'May', transfers: 2 },
-  { name: 'Jun', transfers: 3 },
-];
+const UserAssetDashboard = ({ user }) => {
+  const [currentAssets, setCurrentAssets] = useState([] as any);
+  const [previousAssets, setPreviousAssets] = useState([] as any);
+  const [transferTimeline, setTransferTimeline] = useState([] as any);
+  const [loading, setLoading] = useState(false);
 
-const assetValueData = [
-  { name: 'Cars', value: 45000 },
-  { name: 'Electronics', value: 12000 },
-  { name: 'Collectibles', value: 8000 },
-];
+  const { fetchUserAssets } = useUser();
 
-const recentTransfers = [
-  { id: 'AST-7890', type: 'Car', date: '2023-06-15', status: 'Completed' },
-  { id: 'AST-4567', type: 'Laptop', date: '2023-06-10', status: 'Pending' },
-  { id: 'AST-1234', type: 'Watch', date: '2023-06-05', status: 'Completed' },
-];
+  const loadAssets = async () => {
+    if (!user?.userId) return;
 
-const UserDashboard = () => {
+    setLoading(true);
+    try {
+      const { currentAssets, previouslyOwnedAssets } = await fetchUserAssets(user.walletAddress);
+      setCurrentAssets(currentAssets);
+      setPreviousAssets(previouslyOwnedAssets);
+
+      // Build timeline data
+      const historyMap = new Map();
+      [...currentAssets, ...previouslyOwnedAssets].forEach((asset) => {
+        const date = new Date(asset.lastTransferTime);
+        const key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        historyMap.set(key, (historyMap.get(key) || 0) + 1);
+      });
+
+      const timeline = Array.from(historyMap.entries()).map(([key, count]) => ({
+        name: key,
+        transfers: count,
+      }));
+      setTransferTimeline(timeline);
+    } catch (error) {
+      toast.error('Failed to load assets', {
+        description: 'Please try again later',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAssets();
+  }, [user.userId]);
+
   return (
-    <div className="flex flex-col h-full bg-muted/40">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-6">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="h-6" />
-        <Breadcrumb className="hidden md:flex">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="#" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                User Portal
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-sm font-medium">
-                Asset Dashboard
-              </BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </header>
-
-      <main className="flex-1 p-6 overflow-auto">
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Assets</CardTitle>
+    <div className="p-6 space-y-6">
+      {/* Summary Cards */}
+      <div className="grid gap-4 grid-cols-2 ">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              Total Owned
               <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 from last month</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Wallet Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3.2 ETH</div>
-              <p className="text-xs text-muted-foreground">≈ $5,824.00</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Transfers</CardTitle>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">2</div>
-              <p className="text-xs text-muted-foreground">1 pending approval</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Insurance Coverage</CardTitle>
-              <Shield className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">8 Assets</div>
-              <p className="text-xs text-muted-foreground">$42,000 total coverage</p>
-            </CardContent>
-          </Card>
-        </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{currentAssets.length}</div>
+          </CardContent>
+        </Card>
 
-        {/* Charts Section */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mb-6">
-          <Card className="md:col-span-4">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <History className="h-5 w-5 text-primary" />
-                  Asset Activity
-                </CardTitle>
-                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">
-                  View All
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pl-2 h-[300px]">
-              <LineChart data={assetActivityData}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="name" 
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="transfers" 
-                  stroke="#6366f1" 
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex justify-between items-center">
+              Previously Owned (Admin Transfered)
+              <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{previousAssets.length}</div>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Card className="md:col-span-3">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart4 className="h-5 w-5 text-primary" />
-                Asset Value Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <BarChart data={assetValueData}>
-                <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="name" 
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip />
-                <Bar 
-                  dataKey="value" 
-                  fill="#6366f1" 
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Transfer Activity Timeline */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="h-4 w-4 text-primary" /> Transfer Activity Timeline
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={transferTimeline}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis fontSize={12} tickLine={false} axisLine={false} />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="transfers"
+                stroke="#6366f1"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-        {/* Recent Activity */}
-        <div className="grid gap-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
-                  Recent Transfers
-                </CardTitle>
-                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">
-                  View All
-                </Button>
+      {/* Asset Lists */}
+      <div className="grid gap-4">
+        {/* Current Assets */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Current Assets</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {currentAssets.length === 0 && <p className="text-muted-foreground">No current assets found.</p>}
+            {currentAssets.map((asset) => (
+              <div key={asset.uniqueId} className="border rounded p-3 flex justify-between">
+                <div>
+                  <p className="font-medium">{asset.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {asset.propertyType} · {asset.location}
+                  </p>
+                </div>
+                <div className="text-right text-sm">
+                  <p>{new Date(asset.lastTransferTime).toLocaleDateString()}</p>
+                  {asset.transferredByAdmin && <Badge variant="secondary">Admin Transfer</Badge>}
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {recentTransfers.map((transfer) => (
-                  <div key={transfer.id} className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{transfer.id}</p>
-                        <p className="text-sm text-muted-foreground">{transfer.type}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">{transfer.date}</p>
-                      <Badge 
-                        variant={transfer.status === 'Completed' ? 'default' : 'secondary'} 
-                        className="mt-1"
-                      >
-                        {transfer.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Previously Owned Assets */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Previously Owned Assets (Admin Transfered)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {previousAssets.length === 0 && <p className="text-muted-foreground">No previous assets.</p>}
+            {previousAssets.map((asset) => (
+              <div key={asset.uniqueId} className="border rounded p-3 flex justify-between">
+                <div>
+                  <p className="font-medium">{asset.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {asset.propertyType} · {asset.location}
+                  </p>
+                </div>
+                <div className="text-right text-sm">
+                  <p>{new Date(asset.lastTransferTime).toLocaleDateString()}</p>
+                  {asset.transferredByAdmin && <Badge variant="destructive">Reclaimable</Badge>}
+                </div>
               </div>
-            </CardContent>
-            <CardFooter className="border-t">
-              <Button variant="outline" className="w-full">
-                Initiate New Transfer
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </main>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
 
-export default UserDashboard;
+export default UserAssetDashboard;

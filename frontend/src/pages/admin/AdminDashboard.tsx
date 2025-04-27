@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react"
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@radix-ui/react-separator"
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import {
@@ -16,41 +17,33 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  Cell
+  Cell,
 } from "@/components/ui/charts"
-
-// Dummy data
-const userGrowthData = [
-  { name: 'Jan', users: 400 },
-  { name: 'Feb', users: 600 },
-  { name: 'Mar', users: 800 },
-  { name: 'Apr', users: 1000 },
-  { name: 'May', users: 1200 },
-  { name: 'Jun', users: 1400 },
-]
-
-const assetDistributionData = [
-  { name: 'Cars', value: 35 },
-  { name: 'Houses', value: 25 },
-  { name: 'Electronics', value: 20 },
-  { name: 'Furniture', value: 15 },
-  { name: 'Other', value: 5 },
-]
-
-const transferActivityData = [
-  { name: 'Mon', transfers: 20 },
-  { name: 'Tue', transfers: 35 },
-  { name: 'Wed', transfers: 25 },
-  { name: 'Thu', transfers: 40 },
-  { name: 'Fri', transfers: 30 },
-  { name: 'Sat', transfers: 15 },
-  { name: 'Sun', transfers: 10 },
-]
+import { DashboardMetrics, useAdmin } from "@/services/admin"
+import { useBlockchain } from "@/services/blockchain"
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
 const AdminDashboard = () => {
+  const { fetchDashboardMetrics } = useAdmin()
+  const { getTransactionsNumber } = useBlockchain()
+  const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(null)
+  const [transactions, setTransactions] = useState<number>(0)
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await fetchDashboardMetrics()
+      const transactions = await getTransactionsNumber();
+      setTransactions(transactions as number);
+      setDashboardData(data)
+    }
+    load()
+  }, [])
+
+  const registrations = dashboardData?.charts.registrationsByTime ?? []
+  const transfers = dashboardData?.charts.transactionsByTime ?? []
+  const distribution = dashboardData?.charts.assetDistribution ?? []
+
   return (
     <div className="flex flex-col h-full">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-6">
@@ -71,28 +64,46 @@ const AdminDashboard = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5 text-sm">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
+ 
       </header>
 
       <main className="flex-1 p-6">
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-          {/* ... (keep your existing card code) ... */}
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-3 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Users</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold">
+              {dashboardData?.metrics.totalUsers ?? "—"}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Properties</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold">
+              {dashboardData?.metrics.totalAssets ?? "—"}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Transactions</CardTitle>
+            </CardHeader>
+            <CardContent className="text-2xl font-bold">
+              {transactions ?? "—"}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Charts Section */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mb-6">
           <Card className="md:col-span-4">
             <CardHeader>
-              <CardTitle>User Growth</CardTitle>
+              <CardTitle>Property Registrations Over Time</CardTitle>
             </CardHeader>
             <CardContent className="pl-2 h-[300px]">
-              <LineChart data={userGrowthData}>
+              <LineChart data={registrations}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                 <XAxis 
                   dataKey="name" 
@@ -110,7 +121,7 @@ const AdminDashboard = () => {
                 <Tooltip />
                 <Line 
                   type="monotone" 
-                  dataKey="users" 
+                  dataKey="value" 
                   stroke="#6366f1" 
                   strokeWidth={2}
                   dot={{ r: 4 }}
@@ -125,9 +136,9 @@ const AdminDashboard = () => {
               <CardTitle>Asset Distribution</CardTitle>
             </CardHeader>
             <CardContent className="h-[300px]">
-              <PieChart data={assetDistributionData}>
+              <PieChart data={distribution}>
                 <Pie
-                  data={assetDistributionData}
+                  data={distribution}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -136,7 +147,7 @@ const AdminDashboard = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
-                  {assetDistributionData.map((entry, index) => (
+                  {distribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -151,14 +162,12 @@ const AdminDashboard = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Weekly Transfer Activity</CardTitle>
-                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">
-                  View Details
-                </Button>
+                <CardTitle>Transactions Over Time</CardTitle>
+        
               </div>
             </CardHeader>
             <CardContent className="h-[300px]">
-              <BarChart data={transferActivityData}>
+              <BarChart data={transfers}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                 <XAxis 
                   dataKey="name" 
@@ -175,7 +184,7 @@ const AdminDashboard = () => {
                 />
                 <Tooltip />
                 <Bar 
-                  dataKey="transfers" 
+                  dataKey="value" 
                   fill="#6366f1" 
                   radius={[4, 4, 0, 0]}
                 />
@@ -189,3 +198,7 @@ const AdminDashboard = () => {
 }
 
 export default AdminDashboard
+function getTransactionsNumber() {
+  throw new Error("Function not implemented.")
+}
+

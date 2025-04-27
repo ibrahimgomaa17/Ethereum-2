@@ -75,7 +75,7 @@ export const useUser = () => {
         }),
       });
 
-      return { message: response.message };
+      return { message: response };
     } catch (error: any) {
       return { error: error.message || "Recall failed" };
     }

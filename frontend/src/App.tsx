@@ -76,7 +76,7 @@ function AppContent({
               <Route path="finder" element={<Finder />} />
             </Route>
             <Route path="/user" element={token && user?.userRole != "Admin" ? <Dashboard token={token} user={user} onLogout={onLogout} /> : <Navigate to="/login" />} >
-              <Route path="" element={<UserDashboard />} />
+              <Route path="" element={<UserDashboard user={user} />} />
               <Route path="assets" element={<AssetList user={user} />} />
             </Route>
             <Route path="/search-results" element={<SearchResults  token={token} user={user} onLogout={onLogout} />} /> {/* Add SearchResults route */}

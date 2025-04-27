@@ -35,6 +35,19 @@ export interface TransferAssetPayload {
   byAdmin: boolean;
 }
 
+export interface DashboardMetrics {
+  metrics: {
+    totalUsers: number;
+    totalAssets: number;
+    totalTransactions: number;
+  };
+  charts: {
+    registrationsByTime: { name: string; value: number }[];
+    transactionsByTime: { name: string; value: number }[];
+    assetDistribution: { name: string; value: number }[];
+  };
+}
+
 export interface TransferAllAssetsPayload {
   fromAddress: string;
   toAddress: string;
@@ -141,13 +154,23 @@ export const useAdmin = () => {
       return { user: null, assets: [] };
     }
   };
+  const fetchDashboardMetrics = async (): Promise<DashboardMetrics | null> => {
+    try {
+      const response = await http("/admin/dashboard-metrics");
+      return response;
+    } catch (error) {
+      console.error("Error fetching dashboard metrics:", error);
+      return null;
+    }
+  };
 
   return {
     fetchUsers,
-    fetchAssets,  
+    fetchAssets,
     registerAsset,
     transferProperty,
     transferAllAssets,
     lookupEntityById,
+    fetchDashboardMetrics
   };
 };

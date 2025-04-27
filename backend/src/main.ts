@@ -1,23 +1,48 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// async function bootstrap() {
+//  const httpsOptions = {
+//   key: fs.readFileSync('/etc/letsencrypt/live/blockchain.ibrahimgomaa.me/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/blockchain.ibrahimgomaa.me/fullchain.pem'),
+// };
+
+//   const app = await NestFactory.create(AppModule, { httpsOptions });
+
+//   app.enableCors({
+//       origin: [
+//       'http://localhost:5173', // local frontend
+//       'https://blockchain.ibrahimgomaa.me', // future deployed frontend
+//     ],
+//     credentials: true,
+//   });
+
+//   await app.listen(443, '0.0.0.0');
+//   console.log('✅ HTTPS server running on https://blockchain.ibrahimgomaa.me');
+// }
+// bootstrap();
+
 
 async function bootstrap() {
+//  const httpsOptions = {
+//   key: fs.readFileSync('/etc/letsencrypt/live/blockchain.ibrahimgomaa.me/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/blockchain.ibrahimgomaa.me/fullchain.pem'),
+// };
+
+  // const app = await NestFactory.create(AppModule, { httpsOptions });
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 4000;
-  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
-
   app.enableCors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+      origin: [
+      'http://localhost:5173', // local frontend
+      'https://blockchain.ibrahimgomaa.me', // future deployed frontend
+    ],
     credentials: true,
   });
 
-  await app.listen(port);
-  console.log(`🚀 Blockchain API running at http://localhost:${port}`);
+  await app.listen(4000, '0.0.0.0');
+  console.log('✅ HTTPS server running on localhost:4000');
 }
 bootstrap();

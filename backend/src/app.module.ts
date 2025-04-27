@@ -14,6 +14,7 @@ import { join } from 'path';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // 👈 VERY IMPORTANT
+     envFilePath: '.env',
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'), // make sure this path points to your 'public' folder

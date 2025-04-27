@@ -4,69 +4,100 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { GalleryVerticalEnd, ChevronDown, ChevronRight, Gem, LayoutDashboard, Users, Settings, FileText, Shield } from "lucide-react";
+import {
+  GalleryVerticalEnd,
+  Gem,
+  LayoutDashboard,
+  Users,
+  Settings,
+  FileText,
+  Shield,
+} from "lucide-react";
 import { NavUser } from "./nav-user";
 import { User } from "@/services/admin";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
+interface NavItem {
+  title: string;
+  url: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  badge?: {
+    text: string;
+    variant?: "default" | "secondary" | "destructive" | "outline";
+  };
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
 interface AppSidebarProps {
   user: User;
   onLogout: () => void;
-  navLinks: any[];
+  navLinks: NavGroup[];
   className?: string;
 }
 
-const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) => {
-  const location = useLocation();
-  const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({});
+const DEFAULT_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Dashboard: LayoutDashboard,
+  Assets: Gem,
+  Users: Users,
+  Documents: FileText,
+  Settings: Settings,
+  Admin: Shield,
+};
 
-  const toggleGroup = (groupTitle: string) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupTitle]: !prev[groupTitle]
-    }));
+const AppSidebar: React.FC<AppSidebarProps> = ({
+  user,
+  onLogout,
+  navLinks,
+  className,
+}) => {
+  const location = useLocation();
+
+  const getItemIcon = (item: NavItem) => {
+    return item.icon || DEFAULT_ICONS[item.title] || Gem;
   };
 
-  // Default icons for common menu items
-  const getDefaultIcon = (title: string) => {
-    const iconMap: Record<string, React.ComponentType<any>> = {
-      'Dashboard': LayoutDashboard,
-      'Assets': Gem,
-      'Users': Users,
-      'Documents': FileText,
-      'Settings': Settings,
-      'Admin': Shield
-    };
-    return iconMap[title] || Gem;
+  const isItemActive = (item: NavItem) => {
+    return (
+      location.pathname === `/${item.url}` ||
+      (item.url === "admin" && location.pathname === "/admin/")
+    );
   };
 
   return (
-    <Sidebar className={cn("border-r border-muted bg-background/95 backdrop-blur-sm", className)}>
+    <Sidebar
+      className={cn(
+        "border-r border-muted/20 bg-background/95 flex flex-col",
+        "transition-all duration-300 ease-in-out w-[240px]",
+        className
+      )}
+    >
       {/* Brand Header */}
-      <SidebarHeader className="px-6 py-5 border-b">
+      <SidebarHeader className="px-4 py-5 border-b border-gray-100">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton 
+            <SidebarMenuButton
+              size="lg"
               asChild
-              className="hover:bg-accent rounded-lg transition-colors p-0"
+              className="hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <NavLink to="#" className="flex items-center gap-3 w-full">
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+              <NavLink to="#" className="flex items-center gap-3">
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-sm">
                   <GalleryVerticalEnd className="size-5" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-bold text-lg">AssetChain</span>
-                  <span className="text-xs text-muted-foreground">v2.4.0</span>
+                  <span className="font-bold text-gray-900">Blockchain Portal</span>
+                  <span className="text-xs text-gray-500">Asset Management</span>
                 </div>
               </NavLink>
             </SidebarMenuButton>
@@ -75,86 +106,80 @@ const AppSidebar = ({ user, onLogout, navLinks, className }: AppSidebarProps) =>
       </SidebarHeader>
 
       {/* Navigation Content */}
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-4 py-4 flex-1 overflow-y-auto">
         {navLinks.map((group) => (
-          <SidebarGroup key={group.title} className="mb-1">
-            <SidebarGroupLabel 
-              className={cn(
-                "flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors",
-                "text-muted-foreground hover:text-foreground hover:bg-accent",
-                expandedGroups[group.title] ? "bg-accent text-foreground" : ""
-              )}
-              onClick={() => toggleGroup(group.title)}
-            >
-              <div className="flex items-center gap-2">
-                {group.icon && (
-                  <group.icon className="h-4 w-4" />
-                )}
-                <span>{group.title}</span>
+          <div key={group.title} className="mb-6 last:mb-2">
+            {/* Group header as small text */}
+            {group.title && (
+              <div className="px-3 mb-2">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
+                  {group.title}
+                </span>
               </div>
-              {expandedGroups[group.title] ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </SidebarGroupLabel>
-            
-            <SidebarGroupContent className={cn(
-              "overflow-hidden transition-all duration-200",
-              expandedGroups[group.title] ? "max-h-96 py-1" : "max-h-0"
-            )}>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const isActive =
-                    location.pathname === `/${item.url}` ||
-                    (item.url === "admin" && location.pathname === "/admin/");
-                  const IconComponent = item.icon || getDefaultIcon(item.title);
+            )}
 
-                  return (
-                    <SidebarMenuItem key={item.title} className="px-1">
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive}
-                        className={cn(
-                          "px-3 py-2.5 rounded-lg transition-colors group",
-                          isActive 
-                            ? "bg-primary/10 text-primary font-medium" 
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                        )}
+            <SidebarMenu className="space-y-1">
+              {group.items.map((item) => {
+                const active = isItemActive(item);
+                const Icon = getItemIcon(item);
+
+                return (
+                  <SidebarMenuItem key={`${group.title}-${item.title}`}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      className={cn(
+                        "px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                        active
+                          ? "bg-primary/10 text-primary font-medium "
+                          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                      )}
+                    >
+                      <NavLink
+                        to={`/${item.url}`}
+                        className="flex items-center gap-3 w-full"
                       >
-                        <NavLink to={`/${item.url}`} className="flex items-center gap-3">
-                          <div className={cn(
-                            "flex aspect-square size-8 items-center justify-center rounded-md transition-colors",
-                            isActive 
-                              ? "bg-primary text-primary-foreground" 
-                              : "bg-accent text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
-                          )}>
-                            <IconComponent className="size-4" />
-                          </div>
-                          <div className="flex items-center justify-between flex-1">
-                            <span>{item.title}</span>
-                            {item.badge && (
-                              <Badge variant={item.badge.variant} className="text-xs">
-                                {item.badge.text}
-                              </Badge>
-                            )}
-                          </div>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+                        <div
+                          className={cn(
+                            "flex aspect-square size-8 items-center justify-center rounded-lg transition-all",
+
+                            active
+                              ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-primary-foreground"
+                              : "bg-accent/20 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                          )}
+                        >
+                          <Icon className={cn(
+                            "size-[16px] transition-colors",
+                            active ? "text-primary-foreground" : "text-current"
+                          )} />
+                        </div>
+                        <div className="flex items-center justify-between flex-1 min-w-0">
+                          <span className="truncate text-sm">{item.title}</span>
+                          {item.badge && (
+                            <Badge
+                              variant={item.badge.variant || "secondary"}
+                              className="text-xs ml-2 shrink-0 px-1.5 py-0.5 font-medium"
+                            >
+                              {item.badge.text}
+                            </Badge>
+                          )}
+                        </div>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </div>
         ))}
       </SidebarContent>
 
       {/* User Footer */}
-      <SidebarFooter className="border-t px-4 py-4 bg-muted/20">
+      <SidebarFooter className="border-t border-muted/20 px-4 py-4 bg-muted/10">
         <NavUser user={user} onLogout={onLogout} />
       </SidebarFooter>
-      
+
       <SidebarRail />
     </Sidebar>
   );

@@ -8,7 +8,7 @@ import { TransferAllAssetsDto } from './dto/transfer-all-assets.dto';
 
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) { }
 
   @Post('make-poa-admin')
   async makePoaAdmin(@Body() dto: MakePoaAdminDto) {
@@ -56,5 +56,9 @@ export class AdminController {
       dto.senderPrivateKey,
       dto.byAdmin,
     );
+  }
+  @Get('dashboard-metrics')
+  async getDashboardMetrics() {
+    return this.adminService.getDashboardMetrics();
   }
 }
