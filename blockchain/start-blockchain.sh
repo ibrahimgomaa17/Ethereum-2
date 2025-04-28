@@ -27,11 +27,11 @@ echo "📌 New Geth PID: $NEW_GETH_PID"
 echo "⏳ Waiting for Geth to start..."
 sleep 10
 
-# ✅ Open a new terminal and attach to Geth with `--preload`
+#   Open a new terminal and attach to Geth with `--preload`
 echo "🔗 Attaching to Geth in a new terminal and loading Auto-Mining Script..."
 osascript -e "tell application \"Terminal\" to do script \"geth attach --preload '$PROJECT_ROOT/blockchain/autoMine.js' http://127.0.0.1:8545; exec bash\"" &
 
-# ✅ Start backend server with Nodemon
+#   Start backend server with Nodemon
 echo "🚀 Starting backend server with Nodemon..."
 (
     cd "$PROJECT_ROOT/backend" || exit

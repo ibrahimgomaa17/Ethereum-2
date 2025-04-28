@@ -14,7 +14,7 @@ export interface Asset {
   propertyType: string;
   serialNumber: string;
   location: string;
-  imageUrl: string; // ✅ New: loaded from server after base64 upload
+  imageUrl: string; //   New: loaded from server after base64 upload
   currentOwner: string;
 }
 
@@ -25,7 +25,7 @@ export interface CreateAsset {
   serialNumber: string;
   location: string;
   owner: string;
-  imageBase64?: string; // ✅ Optional base64 input for image upload
+  imageBase64?: string; //   Optional base64 input for image upload
 }
 
 export interface TransferAssetPayload {

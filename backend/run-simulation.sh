@@ -15,6 +15,6 @@ nohup node $APP > $LOG 2>&1 &
 # Save the process ID so we can kill it later
 echo $! > $PIDFILE
 
-echo "✅ Simulation running in background (PID: $(cat $PIDFILE))"
+echo "  Simulation running in background (PID: $(cat $PIDFILE))"
 echo "📄 Logs: $LOG"
 

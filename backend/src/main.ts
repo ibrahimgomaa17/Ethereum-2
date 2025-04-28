@@ -20,7 +20,7 @@ import * as path from 'path';
 //   });
 
 //   await app.listen(443, '0.0.0.0');
-//   console.log('✅ HTTPS server running on https://blockchain.ibrahimgomaa.me');
+//   console.log('  HTTPS server running on https://blockchain.ibrahimgomaa.me');
 // }
 // bootstrap();
 
@@ -43,6 +43,6 @@ async function bootstrap() {
   });
 
   await app.listen(4000, '0.0.0.0');
-  console.log('✅ HTTPS server running on localhost:4000');
+  console.log('  HTTPS server running on localhost:4000');
 }
 bootstrap();

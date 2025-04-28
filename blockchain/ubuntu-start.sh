@@ -74,7 +74,7 @@ echo "🚀 Deploying Smart Contracts with Hardhat..."
     echo "📜 Deploying contracts..."
     npx hardhat run scripts/ubuntu.js --network geth
 
-    echo "✅ Contracts deployed successfully!"
+    echo "  Contracts deployed successfully!"
 ) &
 DEPLOY_PID=$!
 
@@ -82,5 +82,5 @@ echo "📌 Deploy PID: $DEPLOY_PID"
 
 trap "echo '⛔ Terminating processes...'; kill -9 $NEW_GETH_PID $DEPLOY_PID; exit" SIGINT SIGTERM
 
-echo "✅ All processes running. Press Ctrl+C to stop."
+echo "  All processes running. Press Ctrl+C to stop."
 wait

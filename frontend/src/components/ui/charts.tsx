@@ -21,7 +21,7 @@ interface ChartProps {
   className?: string
 }
 
-// ✅ BarChart with default height
+//   BarChart with default height
 export function BarChart({ data, children, className }: ChartProps) {
   return (
     <div className={cn("w-full h-[300px]", className)}>
@@ -34,7 +34,7 @@ export function BarChart({ data, children, className }: ChartProps) {
   )
 }
 
-// ✅ LineChart with default height
+//   LineChart with default height
 export function LineChart({ data, children, className }: ChartProps) {
   return (
     <div className={cn("w-full h-[300px]", className)}>
@@ -47,7 +47,7 @@ export function LineChart({ data, children, className }: ChartProps) {
   )
 }
 
-// ✅ PieChart with default height
+//   PieChart with default height
 export function PieChart({ data, children, className }: ChartProps) {
   return (
     <div className={cn("w-full h-[300px]", className)}>

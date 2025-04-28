@@ -73,7 +73,7 @@ export class PropertyService {
     );
 
     await tx.wait();
-    return { message: '✅ Property registered successfully!' };
+    return { message: '  Property registered successfully!' };
   }
 
   async getPropertyById(uniqueId: string) {

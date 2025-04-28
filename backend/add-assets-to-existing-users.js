@@ -90,7 +90,7 @@ async function main() {
     }
   }
 
-  console.log("✅ Finished adding assets to all users.");
+  console.log("  Finished adding assets to all users.");
 }
 
 main();

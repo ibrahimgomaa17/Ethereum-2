@@ -31,7 +31,7 @@ async function deployContract(contractName) {
         const instance = await Contract.deploy();
         await instance.waitForDeployment();
         const address = await instance.getAddress();
-        console.log(`✅ ${contractName} deployed to: ${address}`);
+        console.log(`  ${contractName} deployed to: ${address}`);
         return address;
     } catch (err) {
         console.error(`❌ Error deploying ${contractName}:`, err);
@@ -66,7 +66,7 @@ function updateEnvFile(userRegistryAddress, propertyRegistryAddress) {
         envContent = replaceEnvVar(envContent, "PROPERTY_REGISTRY_ADDRESS", propertyRegistryAddress);
 
         fs.writeFileSync(envPath, envContent);
-        console.log("✅ .env file updated with contract addresses");
+        console.log("  .env file updated with contract addresses");
     } catch (error) {
         console.error("❌ Failed to update .env file:", error);
     }
@@ -95,7 +95,7 @@ function copyAbisToBackend(contractNames) {
 
             const outputPath = path.join(targetDir, `${name}.json`);
             fs.writeFileSync(outputPath, JSON.stringify(abi, null, 2));
-            console.log(`✅ ABI for ${name} copied to backend/src/contracts`);
+            console.log(`  ABI for ${name} copied to backend/src/contracts`);
         } catch (err) {
             console.error(`❌ Failed to copy ABI for ${name}:`, err);
         }

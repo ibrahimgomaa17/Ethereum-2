@@ -14,7 +14,7 @@ import { RegisterPropertyDto } from './dto/register-property.dto';
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
-  // ✅ POST /property/register
+   // POST /property/register
   @Post('register')
   async register(@Body() dto: RegisterPropertyDto) {
     try {
@@ -25,7 +25,7 @@ export class PropertyController {
     }
   }
 
-  // ✅ GET /property/:id
+   // GET /property/:id
   @Get(':id')
   async getPropertyById(@Param('id') id: string) {
     try {
@@ -36,7 +36,7 @@ export class PropertyController {
     }
   }
 
-  // ✅ GET /property/owner/:address
+   // GET /property/owner/:address
   @Get('owner/:address')
   async getPropertiesByOwner(@Param('address') address: string) {
     try {
@@ -47,7 +47,7 @@ export class PropertyController {
     }
   }
 
-  // ✅ GET /property/all
+   // GET /property/all
   @Get('all')
   async getAllProperties() {
     try {
@@ -58,7 +58,7 @@ export class PropertyController {
     }
   }
 
-  // ✅ GET /property/history/:id
+   // GET /property/history/:id
   @Get('history/:id')
   async getTransferHistory(@Param('id') id: string) {
     try {

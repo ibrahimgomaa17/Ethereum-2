@@ -10,7 +10,7 @@ module.exports = {
       chainId: 1337, // Make sure your Geth node uses this chain ID
       gas: 30_000_000, // Transaction gas limit (can go up to block gas limit)
       gasPrice: 20_000_000_000, // 20 Gwei
-      accounts: [process.env.PRIVATE_KEY], // ✅ Use deployer's private key
+      accounts: [process.env.PRIVATE_KEY], //   Use deployer's private key
     },
   },
   typechain: {

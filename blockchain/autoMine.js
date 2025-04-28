@@ -16,7 +16,7 @@ function createStarterTransaction() {
         gas: 400000
     });
 
-    console.log("✅ Starter transaction sent! Hash:", txHash);
+    console.log("  Starter transaction sent! Hash:", txHash);
 
     // Mine the first block
     miner.start();
@@ -24,7 +24,7 @@ function createStarterTransaction() {
         console.log("⛏️ Waiting for starter block to be mined...");
     }
     miner.stop();
-    console.log("✅ Starter block mined!");
+    console.log("  Starter block mined!");
 }
 
 // **AutoMine Function**
@@ -42,9 +42,9 @@ function autoMine() {
         }
 
         miner.stop();
-        console.log("✅ Transactions confirmed. Stopping mining.");
+        console.log("  Transactions confirmed. Stopping mining.");
     } else {
-        console.log("✅ No pending transactions. No mining needed.");
+        console.log("  No pending transactions. No mining needed.");
     }
 }
 

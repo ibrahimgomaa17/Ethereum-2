@@ -10,7 +10,7 @@ if [ -f "$PIDFILE" ]; then
   echo "🛑 Stopping simulation (PID: $PID)..."
   kill $PID
   rm $PIDFILE
-  echo "✅ Simulation stopped."
+  echo "  Simulation stopped."
 else
   echo "❌ No PID file found. Is the simulation running?"
 fi

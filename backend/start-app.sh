@@ -22,4 +22,4 @@ sudo nohup node $APP_PATH > $LOG_FILE 2>&1 &
 # Save the PID so we can stop it later
 echo $! > $PID_FILE
 
-echo "✅ App started with PID $(cat $PID_FILE). Logs: $LOG_FILE"
+echo "  App started with PID $(cat $PID_FILE). Logs: $LOG_FILE"

@@ -41,7 +41,7 @@ async function fetchImageBase64(url) {
 async function registerUser(userId) {
   try {
     const response = await axios.post(`${API_BASE}/user/register`, { userId });
-    console.log(`✅ Registered user: ${userId}`);
+    console.log(`  Registered user: ${userId}`);
     return response.data;
   } catch (err) {
     console.error(`❌ Failed to register user "${userId}":`, err.response?.data?.error || err.message);
@@ -90,7 +90,7 @@ async function simulateAllDays() {
         privateKey: userData.privateKey,
       };
       registeredUsers.push(newUser);
-      log(`✅ Registered new user: ${newUserId}`);
+      log(`  Registered new user: ${newUserId}`);
     } else {
       log(`❌ Failed to register new user: ${newUserId}`);
     }
@@ -128,7 +128,7 @@ async function simulateAllDays() {
 
     fs.writeFileSync(logFile, logLines.join("\n"));
     log(`📄 Log saved to logs/day-${day}.log`);
-    console.log(`✅ Day ${day} complete.\n`);
+    console.log(`  Day ${day} complete.\n`);
   }
 
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(registeredUsers, null, 2));

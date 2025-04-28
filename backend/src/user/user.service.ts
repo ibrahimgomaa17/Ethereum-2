@@ -66,7 +66,7 @@ export class UserService {
     await (await (contractWithUser as any).registerUser(userId)).wait();
 
     return {
-      message: '✅ User registered successfully. Save this wallet info!',
+      message: '  User registered successfully. Save this wallet info!',
       userId,
       walletAddress,
       privateKey,
@@ -103,7 +103,7 @@ export class UserService {
           propertyType: prop[2],
           serialNumber: prop[3],
           location: prop[4],
-          imageUrl: prop[5],              // ✅ Correct mapping
+          imageUrl: prop[5],               // Correct mapping
           currentOwner: prop[6],
           transferredByAdmin: prop[7],
           lastTransferTime: Number(prop[8]) * 1000,
@@ -132,7 +132,7 @@ export class UserService {
         propertyType: prop.propertyType,
         serialNumber: prop.serialNumber,
         location: prop.location,
-        imageUrl: prop.imageUrl, // ✅ Correct mapping
+        imageUrl: prop.imageUrl, //   Correct mapping
         currentOwner: prop.currentOwner,
         transferredByAdmin: prop.transferredByAdmin,
         lastTransferTime: Number(prop.lastTransferTime) * 1000,
@@ -152,7 +152,7 @@ export class UserService {
       propertyType: prop[2],
       serialNumber: prop[3],
       location: prop[4],
-      imageUrl: prop[5],              // ✅ Correct mapping
+      imageUrl: prop[5],               // Correct mapping
       currentOwner: prop[6],
       transferredByAdmin: prop[7],
       lastTransferTime: Number(prop[8]) * 1000,
@@ -235,7 +235,7 @@ export class UserService {
       }
 
       return {
-        message: '✅ Property transferred successfully',
+        message: '  Property transferred successfully',
         transactionHash: tx.hash,
         blockNumber: receipt.blockNumber
       };
@@ -338,7 +338,7 @@ export class UserService {
       await tx.wait();
     }
   
-    return `✅ Successfully recalled admin-transferred assets for ${userAddress}`;
+    return `  Successfully recalled admin-transferred assets for ${userAddress}`;
   }
 
   

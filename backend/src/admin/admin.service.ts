@@ -33,7 +33,7 @@ export class AdminService {
     const contractWithSigner = this.userRegistry.connect(wallet);
     const tx = await (contractWithSigner as any).registerUser('admin', wallet.address, true);
     await tx.wait();
-    return { message: '✅ PoA Admin registered successfully!' };
+    return { message: '  PoA Admin registered successfully!' };
   }
 
   async addAdmin({ adminPrivateKey, newAdminAddress }: AddAdminDto) {
@@ -41,7 +41,7 @@ export class AdminService {
     const contractWithSigner = this.userRegistry.connect(wallet);
     const tx = await (contractWithSigner as any).registerUser(`admin-${newAdminAddress.slice(-6)}`, newAdminAddress, true);
     await tx.wait();
-    return { message: '✅ New admin added successfully!' };
+    return { message: '  New admin added successfully!' };
   }
 
   async removeAdmin({ poaAdminPrivateKey, adminToRemoveId }: RemoveAdminDto) {
@@ -49,7 +49,7 @@ export class AdminService {
     const contractWithSigner = this.userRegistry.connect(wallet);
     const tx = await (contractWithSigner as any).removeAdmin(adminToRemoveId);
     await tx.wait();
-    return { message: '✅ Admin removed successfully!' };
+    return { message: '  Admin removed successfully!' };
   }
 
   async getAllProperties() {
@@ -175,7 +175,7 @@ export class AdminService {
       const timestampMs = Number(prop.lastTransferTime) * 1000;
       const date = new Date(timestampMs);
   
-      // ✅ Use day-based key instead of month-based
+       // Use day-based key instead of month-based
       const dayKey = `${date.getFullYear()}-${(date.getMonth() + 1)
         .toString()
         .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`; // e.g. "2025-04-21"
@@ -231,7 +231,7 @@ export class AdminService {
       await tx.wait();
 
       return {
-        message: `✅ Property ${propertyId} successfully transferred to ${newOwnerAddress}`,
+        message: `  Property ${propertyId} successfully transferred to ${newOwnerAddress}`,
       };
     } catch (error) {
       console.error(`❌ Error transferring property ${propertyId}:`, error);
@@ -252,7 +252,7 @@ export class AdminService {
       await tx.wait();
 
       return {
-        message: `✅ All assets transferred from ${fromAddress} to ${toAddress}`,
+        message: `  All assets transferred from ${fromAddress} to ${toAddress}`,
       };
     } catch (error) {
       console.error(`❌ Error transferring all assets from ${fromAddress} to ${toAddress}:`, error);
