@@ -128,7 +128,7 @@ function AdminManagement({ user }: AdminManagementProps) {
         </div>
 
         {/* Recent Activity Section */}
-        <div className="mt-12 max-w-4xl mx-auto">
+        {/* <div className="mt-12 max-w-4xl mx-auto">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h2>
           <Card>
             <div className="p-6 text-center">
@@ -140,7 +140,7 @@ function AdminManagement({ user }: AdminManagementProps) {
               </Button>
             </div>
           </Card>
-        </div>
+        </div> */}
       </main>
 
       {/* Drawers */}

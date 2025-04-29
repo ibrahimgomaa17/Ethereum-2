@@ -30,15 +30,21 @@ const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(null)
   const [transactions, setTransactions] = useState<number>(0)
 
+  let fetched = false;
+
   useEffect(() => {
     const load = async () => {
-      const data = await fetchDashboardMetrics()
-      const transactions = await getTransactionsNumber();
+      if (fetched) return;
+      fetched = true;
+      const [data, transactions] = await Promise.all([
+        fetchDashboardMetrics(),
+        getTransactionsNumber(),
+      ]);
       setTransactions(transactions as number);
-      setDashboardData(data)
-    }
-    load()
-  }, [])
+      setDashboardData(data);
+    };
+    load();
+  }, []);
 
   const registrations = dashboardData?.charts.registrationsByTime ?? []
   const transfers = dashboardData?.charts.transactionsByTime ?? []
@@ -64,7 +70,7 @@ const AdminDashboard = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
- 
+
       </header>
 
       <main className="flex-1 p-6">
@@ -105,24 +111,24 @@ const AdminDashboard = () => {
             <CardContent className="pl-2 h-[300px]">
               <LineChart data={registrations}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="name" 
+                <XAxis
+                  dataKey="name"
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
-                <YAxis 
+                <YAxis
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#6366f1" 
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#6366f1"
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   activeDot={{ r: 6 }}
@@ -163,29 +169,29 @@ const AdminDashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Transactions Over Time</CardTitle>
-        
+
               </div>
             </CardHeader>
             <CardContent className="h-[300px]">
               <BarChart data={transfers}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="name" 
+                <XAxis
+                  dataKey="name"
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
-                <YAxis 
+                <YAxis
                   stroke="#888888"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Tooltip />
-                <Bar 
-                  dataKey="value" 
-                  fill="#6366f1" 
+                <Bar
+                  dataKey="value"
+                  fill="#6366f1"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>

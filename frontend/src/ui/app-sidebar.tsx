@@ -142,16 +142,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
                       >
                         <div
                           className={cn(
-                            "flex aspect-square size-8 items-center justify-center rounded-lg transition-all",
-
-                            active
-                              ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-primary-foreground"
-                              : "bg-accent/20 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
-                          )}
+                            "flex aspect-square size-8 items-center justify-center rounded-lg transition-all")}
                         >
                           <Icon className={cn(
                             "size-[16px] transition-colors",
-                            active ? "text-primary-foreground" : "text-current"
+                            active ? "text-indigo-700" : "text-current"
                           )} />
                         </div>
                         <div className="flex items-center justify-between flex-1 min-w-0">
