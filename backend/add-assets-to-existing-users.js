@@ -2,7 +2,9 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-const API_BASE = "https://blockchain.ibrahimgomaa.me";
+// const API_BASE = "https://blockchain.ibrahimgomaa.me";
+
+const API_BASE = "http://localhost:4000";
 const adminPrivateKey = "0x4a6d6453e733a2f8b5c46234886f0a4d08c1a717943e71d817da6694c37bee00";
 
 const propertyTypes = ["House", "Land", "Apartment"];

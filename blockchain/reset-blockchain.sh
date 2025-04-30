@@ -31,11 +31,11 @@ echo "📌 New Geth PID: $NEW_GETH_PID"
 echo "⏳ Waiting for Geth to start..."
 sleep 10
 
-#   Open a new terminal and attach to Geth with `--preload`
+# ✅ Open a new terminal and attach to Geth with `--preload`
 echo "🔗 Attaching to Geth in a new terminal and loading Auto-Mining Script..."
 osascript -e "tell application \"Terminal\" to do script \"geth attach --preload '$PROJECT_ROOT/blockchain/autoMine.js' http://127.0.0.1:8545; exec bash\"" &
 
-#   Deploy Smart Contracts using Hardhat (Process 3)
+# ✅ Deploy Smart Contracts using Hardhat (Process 3)
 DEPLOY_DIR="$PROJECT_ROOT/blockchain/hardhat"
 
 if [ ! -d "$DEPLOY_DIR" ]; then
@@ -79,13 +79,13 @@ echo "🚀 Deploying Smart Contracts with Hardhat (Process 3)..."
     echo "📜 Deploying contracts..."
     npx hardhat run scripts/deploy.js --network geth
 
-    echo "  Contracts deployed successfully!"
+    echo "✅ Contracts deployed successfully!"
 ) &
 
 DEPLOY_PID=$!
 echo "📌 Deployment PID: $DEPLOY_PID"
 
-echo "  All processes started successfully!"
+echo "✅ All processes started successfully!"
 echo "📌 Geth PID: $NEW_GETH_PID"
 echo "📌 Deploy PID: $DEPLOY_PID"
 
