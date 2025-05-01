@@ -24,7 +24,7 @@ Access Geth Instance:
 geth attach http://127.0.0.1:8545
  
 Load AutoMine Script:
-loadScript("/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js")
+loadScript("/Users/ibrahimmohamed/Desktop/Ethereum/blockchain/autoMine.js")
 <!-- loadScript("/Users/ibrahimgomaa/Desktop/Study/Blockchain/Ethereum-2/autoMine.js") -->
 loadScript("autoMine.js")
 

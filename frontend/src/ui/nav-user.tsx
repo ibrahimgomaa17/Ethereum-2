@@ -2,16 +2,9 @@
 
 import {
   BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
   LogOut,
-  Sparkles,
   CircleUser,
-  Settings,
-  Wallet,
-  Shield,
-  HelpCircle
 } from "lucide-react"
 
 import {
@@ -22,7 +15,6 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,

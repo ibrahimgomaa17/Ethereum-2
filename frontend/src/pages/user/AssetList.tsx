@@ -241,7 +241,7 @@ function AssetList({ user }: AssetManagementProps) {
           <SearchForm 
             searchQuery={searchQuery} 
             className="w-[200px] lg:w-[300px] shadow-sm" 
-            placeholder="Search assets..."
+            
           />
         </div>
       </header>

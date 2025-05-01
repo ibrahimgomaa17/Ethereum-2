@@ -15,7 +15,7 @@ import { useUser } from '@/services/user';
 import { toast } from 'sonner';
 import { User } from '@/services/admin';
 
-const UserAssetDashboard = ({ user }) => {
+const UserAssetDashboard = ({ user }:any) => {
   const [currentAssets, setCurrentAssets] = useState([] as any);
   const [previousAssets, setPreviousAssets] = useState([] as any);
   const [transferTimeline, setTransferTimeline] = useState([] as any);
@@ -123,7 +123,7 @@ const UserAssetDashboard = ({ user }) => {
           </CardHeader>
           <CardContent className="space-y-3">
             {currentAssets.length === 0 && <p className="text-muted-foreground">No current assets found.</p>}
-            {currentAssets.map((asset) => (
+            {currentAssets.map((asset:any) => (
               <div key={asset.uniqueId} className="border rounded p-3 flex justify-between">
                 <div>
                   <p className="font-medium">{asset.name}</p>

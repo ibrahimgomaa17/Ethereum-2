@@ -12,7 +12,6 @@ import { useProperty, TransferRecord } from '@/services/property';
 import {
   CheckCircle2,
   ArrowDown,
-  User,
   Clock,
   ShieldCheck,
   Loader2,

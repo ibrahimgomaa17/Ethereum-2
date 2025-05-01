@@ -1,4 +1,3 @@
-import { SearchForm } from "@/components/search-form";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -8,7 +7,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useAdmin, Asset, User } from "@/services/admin";
+import { useAdmin, User } from "@/services/admin";
 import { Separator } from "@radix-ui/react-separator";
 import { useState } from "react";
 import { CreateAssetDrawer } from "./CreateAssetDrawer";
