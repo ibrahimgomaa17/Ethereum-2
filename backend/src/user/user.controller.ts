@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { RecallAssetsDto } from './dto/recall-assets.dto';
 
 @Controller('user')
 export class UserController {
@@ -88,4 +89,9 @@ export class UserController {
       history: await this.userService.getOwnershipHistory(uniqueId),
     };
   }
+  @Post('property/recall')
+  async recallPreviouslyOwnedAssets(@Body() dto: RecallAssetsDto) {
+    return this.userService.recallPreviouslyOwnedAssets(dto.ownerAddress, dto.privateKey);
+  }
+  
 }

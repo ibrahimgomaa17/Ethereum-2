@@ -5,21 +5,21 @@ const path = require("path");
 async function main() {
     console.log("🚀 Deploying Contracts...");
 
-    // ✅ Deploy UserRegistry
+     // Deploy UserRegistry
     console.log("🔹 Deploying UserRegistry...");
     const UserRegistry = await hre.ethers.getContractFactory("UserRegistry");
     const userRegistry = await UserRegistry.deploy();
     await userRegistry.waitForDeployment();
     const userRegistryAddress = await userRegistry.getAddress();
-    console.log(`✅ UserRegistry deployed to: ${userRegistryAddress}`);
+    console.log(`  UserRegistry deployed to: ${userRegistryAddress}`);
 
-    // ✅ Deploy PropertyRegistry
+     // Deploy PropertyRegistry
     console.log("🔹 Deploying PropertyRegistry...");
     const PropertyRegistry = await hre.ethers.getContractFactory("PropertyRegistry");
     const propertyRegistry = await PropertyRegistry.deploy();
     await propertyRegistry.waitForDeployment();
     const propertyRegistryAddress = await propertyRegistry.getAddress();
-    console.log(`✅ PropertyRegistry deployed to: ${propertyRegistryAddress}`);
+    console.log(`  PropertyRegistry deployed to: ${propertyRegistryAddress}`);
 
     console.log("🎉 Deployment completed successfully!");
 
@@ -33,7 +33,7 @@ async function main() {
     copyAbisToBackend();
 }
 
-// ✅ Save deployed contract addresses to `deployed.json`
+//   Save deployed contract addresses to `deployed.json`
 function saveContractAddresses(userRegistryAddress, propertyRegistryAddress) {
     const deployedData = {
         userRegistry: userRegistryAddress,
@@ -49,7 +49,7 @@ function saveContractAddresses(userRegistryAddress, propertyRegistryAddress) {
     }
 }
 
-// ✅ Update `.env` file with new contract addresses
+//   Update `.env` file with new contract addresses
 function updateEnvFile(userRegistryAddress, propertyRegistryAddress) {
     const envPath = path.join("../../backend", ".env");
 
@@ -66,13 +66,13 @@ function updateEnvFile(userRegistryAddress, propertyRegistryAddress) {
         );
 
         fs.writeFileSync(envPath, envContent);
-        console.log("✅ Updated `.env` file with new contract addresses!");
+        console.log("  Updated `.env` file with new contract addresses!");
     } catch (error) {
         console.error("❌ Failed to update `.env` file:", error);
     }
 }
 
-// ✅ Copy compiled ABIs to backend/abi
+//   Copy compiled ABIs to backend/abi
 function copyAbisToBackend() {
     const contracts = ["UserRegistry", "PropertyRegistry"];
     const abiOutputDir = path.join(__dirname, "../../../backend/src/contracts");
@@ -90,11 +90,11 @@ function copyAbisToBackend() {
             path.join(abiOutputDir, `${name}.json`),
             JSON.stringify(abi, null, 2)
         );
-        console.log(`✅ Copied ABI for ${name} to backend/src/contracts`);
+        console.log(`  Copied ABI for ${name} to backend/src/contracts`);
     });
 }
 
-// ✅ Execute the script
+//   Execute the script
 main().catch((error) => {
     console.error("❌ Deployment failed:", error);
     process.exit(1);

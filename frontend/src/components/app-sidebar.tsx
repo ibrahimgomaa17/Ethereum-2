@@ -26,7 +26,7 @@ const data = {
             items: [
                 {
                     title: "Dashboard",
-                    url: "admin", // ✅ Set Dashboard to "admin"
+                    url: "admin", //   Set Dashboard to "admin"
                 },
                 {
                     title: "Users",
@@ -46,7 +46,7 @@ interface AppSidebarProps {
 }
 
 const AppSidebar = ({ user, onLogout }: AppSidebarProps) => {
-    const location = useLocation(); // ✅ Get current URL path
+    const location = useLocation(); //   Get current URL path
 
     return (
         <Sidebar >
@@ -73,7 +73,7 @@ const AppSidebar = ({ user, onLogout }: AppSidebarProps) => {
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 {group.items.map((item) => {
-                                    // ✅ Ensure Dashboard is active for "/admin" and "/admin/"
+                                     // Ensure Dashboard is active for "/admin" and "/admin/"
                                     const isActive =
                                         location.pathname === `/${item.url}` ||
                                         (item.url === "admin" && location.pathname === "/admin/");

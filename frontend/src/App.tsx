@@ -7,12 +7,13 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Dashboard from "./pages/Dashboard";
-import UserManagement from "./pages/admin/UserManagement";
 import AssetManagement from "./pages/admin/AdminManagement";
 import { LoaderComponent } from "./ui/loader";
 import AssetList from "./pages/user/AssetList";
 import UserDashboard from "./pages/user/UserDashboard";
 import AdminManagement from "./pages/admin/AdminManagement";
+import Finder from "./pages/admin/Finder";
+import SearchResults from "./pages/SearchResults"; // Import the SearchResults page
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
@@ -72,11 +73,13 @@ function AppContent({
               <Route path="" element={<AdminDashboard />} />
               <Route path="actions" element={<AdminManagement user={user} />} />
               <Route path="asset-management" element={<AssetManagement user={user} />} />
+              <Route path="finder" element={<Finder />} />
             </Route>
             <Route path="/user" element={token && user?.userRole != "Admin" ? <Dashboard token={token} user={user} onLogout={onLogout} /> : <Navigate to="/login" />} >
-              <Route path="" element={<UserDashboard />} />
+              <Route path="" element={<UserDashboard user={user} />} />
               <Route path="assets" element={<AssetList user={user} />} />
             </Route>
+            <Route path="/search-results" element={<SearchResults  token={token} user={user} onLogout={onLogout} />} /> {/* Add SearchResults route */}
           </Routes>
         </main>
       </div>

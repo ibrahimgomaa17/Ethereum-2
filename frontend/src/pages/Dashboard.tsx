@@ -14,12 +14,16 @@ const adminLinks = [
       items: [
           {
               title: "Dashboard",
-              url: "admin", // ✅ Set Dashboard to "admin"
+              url: "admin", //   Set Dashboard to "admin"
           },
           {
-              title: "Admin Actions",
+              title: "Actions",
               url: "admin/actions",
           },
+          {
+            title: "Lookup",
+            url: "admin/finder",
+        },
       ],
   },
 ]
@@ -30,7 +34,7 @@ const userLinks = [
       items: [
           {
               title: "Dashboard",
-              url: "user", // ✅ Set Dashboard to "admin"
+              url: "user", //   Set Dashboard to "admin"
           },
           {
               title: "Assets",

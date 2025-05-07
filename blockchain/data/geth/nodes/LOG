@@ -1,26 +1,16 @@
-=============== Mar 30, 2025 (+03) ===============
-10:21:36.775996 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-10:21:36.793425 db@open opening
-10:21:36.794002 version@stat F·[] S·0B[] Sc·[]
-10:21:36.798540 db@janitor F·2 G·0
-10:21:36.798566 db@open done T·5.106875ms
-=============== Mar 30, 2025 (+03) ===============
-10:23:07.578607 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-10:23:07.578763 version@stat F·[] S·0B[] Sc·[]
-10:23:07.578777 db@open opening
-10:23:07.578813 journal@recovery F·1
-10:23:07.578916 journal@recovery recovering @1
-10:23:07.583152 memdb@flush created L0@2 N·2 S·181B "loc..seq,v2":"version,v1"
-10:23:07.583858 version@stat F·[1] S·181B[181B] Sc·[0.25]
-10:23:07.604341 db@janitor F·3 G·0
-10:23:07.604364 db@open done T·25.581125ms
-=============== Mar 31, 2025 (+03) ===============
-23:05:17.652248 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-23:05:17.652420 version@stat F·[1] S·181B[181B] Sc·[0.25]
-23:05:17.652437 db@open opening
-23:05:17.652504 journal@recovery F·1
-23:05:17.652939 journal@recovery recovering @3
-23:05:17.657902 memdb@flush created L0@5 N·1 S·162B "loc..seq,v4":"loc..seq,v4"
-23:05:17.658518 version@stat F·[2] S·343B[343B] Sc·[0.50]
-23:05:17.678300 db@janitor F·4 G·0
-23:05:17.678327 db@open done T·25.879542ms
+=============== May 7, 2025 (+03) ===============
+07:49:05.195177 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+07:49:05.215660 db@open opening
+07:49:05.216360 version@stat F·[] S·0B[] Sc·[]
+07:49:05.224756 db@janitor F·2 G·0
+07:49:05.224788 db@open done T·9.071292ms
+=============== May 7, 2025 (+03) ===============
+07:52:27.760925 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+07:52:27.761129 version@stat F·[] S·0B[] Sc·[]
+07:52:27.761146 db@open opening
+07:52:27.761186 journal@recovery F·1
+07:52:27.761498 journal@recovery recovering @1
+07:52:27.766577 memdb@flush created L0@2 N·2 S·181B "loc..seq,v2":"version,v1"
+07:52:27.767134 version@stat F·[1] S·181B[181B] Sc·[0.25]
+07:52:27.786996 db@janitor F·3 G·0
+07:52:27.787018 db@open done T·25.863208ms

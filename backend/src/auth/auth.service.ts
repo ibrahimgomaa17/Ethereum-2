@@ -60,7 +60,7 @@ export class AuthService {
     );
 
     return {
-      message: '✅ Login successful!',
+      message: '  Login successful!',
       token,
       user: {
         userId,

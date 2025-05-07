@@ -9,5 +9,5 @@ sleep 10
 echo "🔗 Attaching to Geth..."
 geth attach http://127.0.0.1:8545 --exec "loadScript('/Users/ibrahimmohamed/Desktop/Learning/Ethereum-2/blockchain/autoMine.js')"
 
-echo "✅ Auto-mining script loaded successfully!"
+echo "  Auto-mining script loaded successfully!"
 [B≈≈A

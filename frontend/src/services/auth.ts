@@ -14,7 +14,6 @@ export const useAuth = () => {
                 credentials: "include",
             });
             const data = response;
-debugger
             if (!response.token) {
                 throw new Error(data.error || "Invalid login credentials");
             }

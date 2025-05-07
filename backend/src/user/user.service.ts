@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 import userRegistryABI from '../contracts/UserRegistry.json';
 import propertyRegistryABI from '../contracts/PropertyRegistry.json';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { PropertyLockedException } from 'src/common/exceptions/property-locked.exception';
 
 @Injectable()
 export class UserService {
+
   private provider: ethers.JsonRpcProvider;
   private userRegistry: ethers.Contract;
   private propertyRegistry: ethers.Contract;
@@ -43,31 +45,42 @@ export class UserService {
       }
     }
 
+    // 🔐 Create a new wallet for the user
     const wallet = ethers.Wallet.createRandom();
     const walletAddress = wallet.address;
     const privateKey = wallet.privateKey;
 
+    // 🏦 Fund new user with 1000 coins from admin
     const poaKey = this.config.get<string>('POA_ADMIN_PRIVATE_KEY')!;
     const funder = new ethers.Wallet(poaKey, this.provider);
-    await (await funder.sendTransaction({
-      to: walletAddress,
-      value: ethers.parseEther('0.01'),
-    })).wait();
 
+    await (
+      await funder.sendTransaction({
+        to: walletAddress,
+        value: ethers.parseEther('1000'), // 💸 1000 coins
+      })
+    ).wait();
+
+    // 📝 Register user on-chain
     const contractWithUser = this.userRegistry.connect(wallet.connect(this.provider));
     await (await (contractWithUser as any).registerUser(userId)).wait();
 
     return {
-      message: '✅ User registered successfully. Save this wallet info!',
+      message: '  User registered successfully. Save this wallet info!',
       userId,
       walletAddress,
       privateKey,
     };
   }
 
+
   async getUserById(userId: string) {
     const [id, address, isAdmin] = await this.userRegistry.getUserById(userId);
-    return { userId: id, walletAddress: address, isAdmin };
+    return {
+      userId: id,
+      walletAddress: address,
+      userRole: isAdmin ? 'Admin' : 'User',
+    };
   }
 
   async getUserIdByAddress(address: string) {
@@ -81,7 +94,7 @@ export class UserService {
   async getUserAssets(walletAddress: string) {
     const propertyIds: string[] = await this.propertyRegistry.getPropertiesByOwner(walletAddress);
 
-    const properties = await Promise.all(
+    const currentAssets = await Promise.all(
       propertyIds.map(async (id: string) => {
         const prop = await this.propertyRegistry.getProperty(id);
         return {
@@ -90,14 +103,45 @@ export class UserService {
           propertyType: prop[2],
           serialNumber: prop[3],
           location: prop[4],
-          currentOwner: prop[5],
-          transferredByAdmin: prop[6],
-          lastTransferTime: Number(prop[7]) * 1000,
+          imageUrl: prop[5],               // Correct mapping
+          currentOwner: prop[6],
+          transferredByAdmin: prop[7],
+          lastTransferTime: Number(prop[8]) * 1000,
         };
       })
     );
 
-    return properties;
+    const allProperties = await this.propertyRegistry.getAllProperties();
+
+    const previouslyOwnedAssets = allProperties
+      .filter((prop: any) => {
+        const history = prop.transferHistory;
+        const currentOwner = prop.currentOwner;
+        if (history.length < 2) return false;
+
+        const lastTransfer = history[history.length - 1];
+        return (
+          lastTransfer.transferredByAdmin &&
+          lastTransfer.previousOwner.toLowerCase() === walletAddress.toLowerCase() &&
+          currentOwner.toLowerCase() !== walletAddress.toLowerCase()
+        );
+      })
+      .map((prop: any) => ({
+        uniqueId: prop.uniqueId,
+        name: prop.name,
+        propertyType: prop.propertyType,
+        serialNumber: prop.serialNumber,
+        location: prop.location,
+        imageUrl: prop.imageUrl, //   Correct mapping
+        currentOwner: prop.currentOwner,
+        transferredByAdmin: prop.transferredByAdmin,
+        lastTransferTime: Number(prop.lastTransferTime) * 1000,
+      }));
+
+    return {
+      currentAssets,
+      previouslyOwnedAssets,
+    };
   }
 
   async getProperty(uniqueId: string) {
@@ -108,9 +152,10 @@ export class UserService {
       propertyType: prop[2],
       serialNumber: prop[3],
       location: prop[4],
-      currentOwner: prop[5],
-      transferredByAdmin: prop[6],
-      lastTransferTime: Number(prop[7]) * 1000,
+      imageUrl: prop[5],               // Correct mapping
+      currentOwner: prop[6],
+      transferredByAdmin: prop[7],
+      lastTransferTime: Number(prop[8]) * 1000,
     };
   }
 
@@ -123,25 +168,179 @@ export class UserService {
     toAddress: string,
     fromPrivateKey: string
   ) {
-    const senderWallet = new ethers.Wallet(fromPrivateKey, this.provider);
-    const contractWithSigner = this.propertyRegistry.connect(senderWallet);
-    console.log("uniqueId:", uniqueId);
-    console.log("toAddress:", toAddress);
-    console.log("fromPrivateKey:", fromPrivateKey);
 
-    const property = await this.propertyRegistry.getProperty(uniqueId);
-    console.log("Current Owner:", property.currentOwner);
-    console.log("Transferred By Admin:", property.transferredByAdmin);
-    console.log("Last Transfer:", new Date(Number(property.lastTransferTime) * 1000));
+    if (!ethers.isAddress(toAddress)) {
+      throw new Error('❌ Invalid recipient address');
+    }
+
+    if (!ethers.isHexString(fromPrivateKey, 32)) {
+      throw new Error('❌ Invalid private key (must be 32-byte hex string)');
+    }
+
+    try {
+      // 2️⃣ Initialize wallet and contract
+      const senderWallet = new ethers.Wallet(fromPrivateKey, this.provider);
+      const contractWithSigner = this.propertyRegistry.connect(senderWallet);
+
+      // 3️⃣ Check prerequisites
+      const [exists, currentOwner, canTransfer] = await Promise.all([
+        this.propertyRegistry.getProperty(uniqueId).then(() => true).catch(() => false),
+        this.propertyRegistry.getProperty(uniqueId).then(p => p[6]), // currentOwner field
+        this.propertyRegistry.canTransferProperty(uniqueId)
+      ]);
+
+      if (!exists) {
+        throw new Error('❌ Property does not exist');
+      }
+
+      if (currentOwner.toLowerCase() !== senderWallet.address.toLowerCase()) {
+        throw new Error('❌ Sender is not the current owner');
+      }
 
 
-    const tx = await (contractWithSigner as any).transferProperty(uniqueId, toAddress, false);
-    await tx.wait();
+      if (!canTransfer) {
+        throw new Error('Property is currently locked for transfers');
+      }
 
-    return { message: '✅ Property transferred successfully.' };
+      // 4️⃣ Estimate gas and check balance
+      const gasEstimate = await (contractWithSigner as any).transferProperty.estimateGas(
+        uniqueId,
+        toAddress,
+        false
+      );
+
+      const gasPrice = await this.provider.getFeeData().then(data => data.gasPrice || BigInt(0));
+      const requiredBalance = gasEstimate * (gasPrice + gasPrice / BigInt(10)); // +10% buffer
+
+      const senderBalance = await this.provider.getBalance(senderWallet.address);
+
+      if (senderBalance < requiredBalance) {
+        throw new Error(
+          `❌ Insufficient gas funds. Needed ${ethers.formatEther(requiredBalance)} ETH, ` +
+          `but only have ${ethers.formatEther(senderBalance)} ETH`
+        );
+      }
+
+      // 5️⃣ Execute transfer
+      const tx = await (contractWithSigner as any).transferProperty(
+        uniqueId,
+        toAddress,
+        false,
+        { gasLimit: gasEstimate + BigInt(10000) } // Additional buffer
+      );
+
+      const receipt = await tx.wait();
+      if (receipt.status !== 1) {
+        throw new Error('❌ Transaction failed (receipt status = 0)');
+      }
+
+      return {
+        message: '  Property transferred successfully',
+        transactionHash: tx.hash,
+        blockNumber: receipt.blockNumber
+      };
+
+    } catch (error: any) {
+      let errorMessage = '❌ Transfer failed';
+    
+      // Check for known revert reason formats
+      if (error.reason) {
+        errorMessage += `: ${error.reason.replace('execution reverted: ', '')}`;
+      } else if (error.error && error.error.message) {
+        errorMessage += `: ${error.error.message.replace('execution reverted: ', '')}`;
+      } else if (error.data && typeof error.data === 'string') {
+        const revertReason = error.data.match(/revert (.*)/);
+        if (revertReason && revertReason[1]) {
+          errorMessage += `: ${revertReason[1]}`;
+        }
+      } else if (error.code === 'INSUFFICIENT_FUNDS') {
+        errorMessage = '❌ Sender lacks ETH for gas';
+      } else if (error.code === 'CALL_EXCEPTION') {
+        errorMessage = '❌ Contract call failed (check arguments)';
+      } else {
+        errorMessage += `: ${error.message || error.code || 'Unknown error'}`;
+      }
+    
+      return {
+        uniqueId,
+        toAddress,
+        fromAddress: new ethers.Wallet(fromPrivateKey).address,
+        error: error.message,
+        full: error,
+        stack: error.stack
+      };
+    
+    }
+    
   }
-
   async getOwnershipHistory(uniqueId: string): Promise<string[]> {
-    return await this.propertyRegistry.getOwnershipHistory(uniqueId);
+    return this.propertyRegistry.getOwnershipHistory(uniqueId);
   }
+
+
+  async recallPreviouslyOwnedAssets(
+    userAddress: string,
+    userPrivateKey: string
+  ): Promise<string> {
+    const userWallet = new ethers.Wallet(userPrivateKey, this.provider);
+    const contractWithSigner = this.propertyRegistry.connect(userWallet);
+  
+    // Ensure the wallet address matches the claimed address
+    if (userWallet.address.toLowerCase() !== userAddress.toLowerCase()) {
+      throw new Error("Private key does not match the provided address");
+    }
+  
+    // Ensure the user has enough ETH for gas
+    const requiredBalance = ethers.parseEther("0.01");
+    const userBalance = await this.provider.getBalance(userWallet.address);
+  
+    if (userBalance < requiredBalance) {
+      const funder = new ethers.Wallet(
+        this.config.get<string>('POA_ADMIN_PRIVATE_KEY')!,
+        this.provider
+      );
+  
+      const fundAmount = requiredBalance - userBalance;
+      const tx = await funder.sendTransaction({
+        to: userWallet.address,
+        value: fundAmount,
+      });
+      await tx.wait();
+    }
+  
+    // Fetch all properties on the contract
+    const allProperties = await this.propertyRegistry.getAllProperties();
+    const ownersToRecallFrom = new Set<string>();
+  
+    for (const prop of allProperties) {
+      if (!prop.transferredByAdmin || prop.currentOwner.toLowerCase() === userAddress.toLowerCase()) {
+        continue; // Not eligible for recall
+      }
+  
+      const history = await this.propertyRegistry.getTransferHistory(prop.uniqueId);
+      if (history.length === 0) continue;
+  
+      const lastTransfer = history[history.length - 1];
+      if (
+        lastTransfer.transferredByAdmin &&
+        lastTransfer.previousOwner.toLowerCase() === userAddress.toLowerCase()
+      ) {
+        ownersToRecallFrom.add(prop.currentOwner);
+      }
+    }
+  
+    if (ownersToRecallFrom.size === 0) {
+      throw new Error("No admin-transferred properties found to recall.");
+    }
+  
+    for (const currentOwner of ownersToRecallFrom) {
+      const tx = await (contractWithSigner as any).reverseAdminTransferAll(userAddress, currentOwner);
+      await tx.wait();
+    }
+  
+    return `  Successfully recalled admin-transferred assets for ${userAddress}`;
+  }
+
+  
+
 }
